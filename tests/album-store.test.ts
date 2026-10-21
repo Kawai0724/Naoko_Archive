@@ -16,11 +16,11 @@ test('submission checks partial dates, URLs, names; drafts retain incomplete val
 test('optimistic concurrency rejects stale writes; deleted drafts can restore with history',t=>{const {store}=setup(t);let a=store.save(emptyAlbum(),'draft');const stale=a; a=store.save({...a,title:'TEST saved'},'draft',a.id,a.revision);assert.throws(()=>store.save(stale,'draft',a.id,stale.revision),e=>e instanceof StoreError&&e.status===409);a=store.transition(a.id,'delete',a.revision,false);assert.ok(a.deletedAt);a=store.transition(a.id,'restore',a.revision,false);assert.equal(a.deletedAt,null);assert.equal(a.title,'TEST saved');assert.equal(store.revisions(a.id).length,4);});
 const imageBytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=','base64');
 const images=(count:number)=>Array.from({length:count},(_,i)=>({name:`image-${i+1}.png`,bytes:imageBytes}));
-test('private image is persistent but never public until licensed and approved; ownership enforced',t=>{
+test('uploaded image is shared with the approved album without a separate rights toggle; ownership enforced',t=>{
   const {store}=setup(t);let a=store.attachImages({...emptyAlbum(),title:'TEST media'},images(1),undefined,0,undefined,'cover');
   const m=a.media[0],storageKey=m.storageKey!;
   a=store.save(a,'submit',a.id,a.revision);a=store.transition(a.id,'approve',a.revision,true);
-  assert.equal(store.published().find(p=>p.id===a.id)?.media.length,0);
+  assert.equal(store.published().find(p=>p.id===a.id)?.media.length,1);
   assert.equal(store.file(storageKey).bytes.length,imageBytes.length);
   const other=store.save(emptyAlbum(),'draft');assert.throws(()=>store.save({...other,media:[m]},'draft',other.id,other.revision),/引用无效/);
   a=store.save({...a,media:[{...m,rightsStatus:'licensed-public',publicationConfirmed:true}]},'submit',a.id,a.revision);a=store.transition(a.id,'approve',a.revision,true);

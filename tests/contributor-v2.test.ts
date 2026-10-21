@@ -52,7 +52,7 @@ test('ownership is server controlled; draft, review, reject, resubmit, approve a
   assert.deepEqual(album.editions[0].tracks[0].lyricists,[]);assert.equal(album.editions[0].tracks[0].lyricsText,null);
   let ownDraft=a.save({...emptyAlbum(),title:'Recoverable draft'},'draft');const deletion=a.requests.requestDelete(a.user,ownDraft.id,ownDraft.revision,'重复草稿');ownDraft=s.requests.review(s.user,deletion.id,'approved',deletion.revision).album;assert.ok(ownDraft.deletedAt);ownDraft=a.transition(ownDraft.id,'restore',ownDraft.revision);assert.equal(ownDraft.deletedAt,null);
 });
-test('COS tickets bind user, album, version, track, type, replacement and revision; complete is atomic and files stay private',t=>{
+test('COS tickets bind user, album, version, track, type, replacement and revision; complete is atomic and storage stays private',t=>{
   const {a,b,s,store}=setup(t),edition=emptyEdition(),track=emptyTrack(1);track.title='Existing';edition.tracks=[track];let album=a.save({...emptyAlbum(),title:'Cloud',editions:[edition]},'draft');
   const uploads=new ContributorUploads(a),others=new ContributorUploads(b);
   const params=()=>({albumId:album.id,editionId:edition.id,expectedRevision:album.revision,name:'cover.png',mimeType:'image/png',size:64,kind:'cover' as const});
@@ -65,8 +65,8 @@ test('COS tickets bind user, album, version, track, type, replacement and revisi
   const first=album.media[0].id;album=uploads.complete(uploads.create({...params(),replaceId:first}).id);assert.equal(album.media.length,6);assert.equal(album.media[0].id,first);
   assert.throws(()=>uploads.create({...params(),kind:'audio',name:'test.flac',target:'missing'}),/已添加的曲目/);
   const audio=uploads.create({...params(),kind:'audio',name:'test.flac',target:track.id});album=uploads.complete(audio.id,{codec:'FLAC',extension:'flac',mimeType:'audio/flac',size:64,bitDepth:16,sampleRate:44100,channels:2,durationSeconds:1});
-  const m=album.media.at(-1)!;assert.equal(m.relatedTrackId,track.id);assert.equal(m.relatedEditionId,edition.id);assert.equal(m.rightsStatus,'private');assert.throws(()=>a.media(m.storageKey!,true),/仅管理员/);assert.equal(s.media(m.storageKey!,true).mime_type,'audio/flac');
-  album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');assert.throws(()=>uploads.create(params()),/正在审核/);s.transition(album.id,'approve',album.revision);assert.equal(store.published().find(x=>x.id===album.id)?.media.length,0);
+  const m=album.media.at(-1)!;assert.equal(m.relatedTrackId,track.id);assert.equal(m.relatedEditionId,edition.id);assert.equal(m.rightsStatus,'private');assert.equal(a.media(m.storageKey!,true).mime_type,'audio/flac');assert.equal(s.media(m.storageKey!,true).mime_type,'audio/flac');
+  album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');assert.throws(()=>uploads.create(params()),/正在审核/);s.transition(album.id,'approve',album.revision);assert.equal(store.published().find(x=>x.id===album.id)?.media.length,7);
 });
 test('COS completion failure rolls back registration and ticket consumption',t=>{
   const {a}=setup(t),edition=emptyEdition();let album=a.save({...emptyAlbum(),title:'Rollback',editions:[edition]},'draft'),uploads=new ContributorUploads(a);

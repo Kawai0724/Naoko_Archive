@@ -18,4 +18,4 @@ export async function objectRange(key:string,start:number,end:number,etag:string
   const result=await call<{Body:Buffer}>('getObject',{Bucket:bucket,Region:region,Key:key,Range:`bytes=${start}-${end}`,IfMatch:etag});
   return new Uint8Array(result.Body);
 }
-export function privateReadUrl(key:string){return client().getObjectUrl({Bucket:bucket,Region:region,Key:key,Method:'GET',Sign:true,Expires:120});}
+export function privateReadUrl(key:string,disposition?:string){return client().getObjectUrl({Bucket:bucket,Region:region,Key:key,Method:'GET',Sign:true,Expires:120,...(disposition?{Query:{'response-content-disposition':disposition}}:{})});}

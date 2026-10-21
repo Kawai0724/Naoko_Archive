@@ -32,7 +32,7 @@ test('stream receiver enforces byte limit and cleans truncated, empty and invali
   await assert.rejects(receiveAudio(directory,new ReadableStream({start(c){c.close();}}),'empty.flac',0),/不能为空/);
   assert.deepEqual(readdirSync(path.join(directory,'private-media','.incoming')),[]);
 });
-test('whole album file persists privately with authoritative format metadata',async t=>{
+test('whole album storage persists with authoritative metadata and becomes available with its approved album',async t=>{
   const {store,directory}=setup(t);let a=store.save({...emptyAlbum(),title:'TEST whole album'},'draft');
   const prepared=await receive(directory);a=store.attachAudio(a.id,a.revision,prepared,'album');const m=a.media[0];
   assert.equal(m.audioScope,'album');assert.equal(m.relatedTrackId,null);assert.equal(m.codec,'FLAC');assert.equal(m.bitDepth,16);assert.equal(m.sampleRate,44100);assert.equal(m.rightsStatus,'private');
@@ -40,7 +40,7 @@ test('whole album file persists privately with authoritative format metadata',as
   assert.throws(()=>store.file(m.storageKey!),e=>e instanceof StoreError&&e.status===403);
   a=store.save({...a,media:[{...m,codec:'forged',sampleRate:1,rightsStatus:'licensed-public',publicationConfirmed:true}]},'submit',a.id,a.revision);
   assert.equal(a.media[0].codec,'FLAC');assert.equal(a.media[0].sampleRate,44100);assert.equal(a.media[0].rightsStatus,'private');
-  a=store.transition(a.id,'approve',a.revision,true);assert.equal(store.published().find(x=>x.id===a.id)?.media.length,0);
+  a=store.transition(a.id,'approve',a.revision,true);assert.equal(store.published().find(x=>x.id===a.id)?.media.length,1);
   store.close();const reopened=new AlbumStore(directory);assert.equal(reopened.get(a.id)?.media[0].storageKey,m.storageKey);reopened.close();
 });
 test('track upload links only an existing stable track without creating or renaming tracks',async t=>{

@@ -42,6 +42,11 @@ export class AlbumStore {
   list():Album[]{return (this.db.prepare('SELECT working_json FROM albums ORDER BY rowid DESC').all() as {working_json:string}[]).map(r=>JSON.parse(r.working_json));}
   published(){return (this.db.prepare('SELECT published_json,working_json FROM albums WHERE published_json IS NOT NULL').all() as Row[]).filter(r=>!JSON.parse(r.working_json).deletedAt).map(r=>publicAlbum(JSON.parse(r.published_json!)));}
   publishedRaw(id:string):Album|null{const row=this.db.prepare('SELECT * FROM albums WHERE id=?').get(id) as Row|undefined;return row?.published_json&&!JSON.parse(row.working_json).deletedAt?JSON.parse(row.published_json):null;}
+  publishedMedia(albumId:string,mediaId:string){
+    const album=this.publishedRaw(albumId),media=album?.media.find(m=>m.id===mediaId),file=media?.storageKey?this.cloudMediaInfo(media.storageKey):null;
+    if(!media?.storageKey||!file||file.album_id!==albumId||(media.type==='audio')!==file.mime_type.startsWith('audio/')||media.type==='audio'&&!this.audioInfo(media.storageKey))throw new StoreError('文件不存在',404);
+    return media;
+  }
   revisions(id:string):AlbumRevision[]{return (this.db.prepare('SELECT * FROM revisions WHERE album_id=? ORDER BY id DESC').all(id) as {id:number;album_id:string;action:string;contributor:string;created_at:string;summary_json:string;snapshot_json:string}[]).map(r=>({id:r.id,albumId:r.album_id,action:r.action,contributor:r.contributor,createdAt:r.created_at,summary:JSON.parse(r.summary_json),snapshot:JSON.parse(r.snapshot_json)}));}
   private history(a:Album,action:string,summary:string[]){this.db.prepare('INSERT INTO revisions(album_id,action,contributor,created_at,summary_json,snapshot_json) VALUES(?,?,?,?,?,?)').run(a.id,action,a.contributor,a.updatedAt,JSON.stringify(summary),JSON.stringify(a));}
   save(input:unknown,action:'draft'|'submit',id?:string,expected=0,contributor=localContributor,beforePersist?:()=>void,afterPersist?:(a:Album)=>void):Album{

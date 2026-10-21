@@ -87,3 +87,5 @@
 .review-response-note{margin:16px 0}.review-response-note>summary{cursor:pointer;color:var(--muted);font-size:12px}.review-response-note .editor-field{margin-top:16px}.review-message-actions .editor-actions{margin-top:12px}
 
 .account-settings{max-width:760px}.account-settings h1{font-family:var(--serif);font-size:clamp(40px,5vw,64px);line-height:1.3}.account-summary{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:baseline;margin:28px 0 40px;font-size:20px;overflow-wrap:anywhere}.account-summary span{font-size:14px;color:var(--muted)}.account-closure{border-top:1px solid var(--line)}.account-closure h2{font-family:var(--serif);font-size:28px}.account-closure>p{font-size:15px;line-height:1.8;max-width:560px}.account-closure .access-form{margin-top:28px}.account-close-button{background:transparent;border-color:var(--vermilion);color:var(--vermilion)}.account-close-button:disabled{opacity:.45;cursor:default}.contributor-account a{border-bottom:1px solid var(--line)}
+
+.editor-disclosure-body .shared-audio{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:20px 0}.editor-disclosure-body .shared-audio audio{width:100%;max-width:560px;min-width:0}

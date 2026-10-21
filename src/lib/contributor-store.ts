@@ -41,8 +41,6 @@ export class ContributorStore{
   media(key:string,audio=false){
     const f=this.store.cloudMediaInfo(key);if(!f||f.mime_type.startsWith('audio/')!==audio)throw new StoreError('文件不存在',404);
     const a=this.get(f.album_id);if(a.deletedAt||!a.media.some(m=>m.storageKey===key))throw new StoreError('文件不存在',404);
-    // Full recordings remain administrator-only, including after approval.
-    if(audio&&this.user.role!=='admin')throw new StoreError('完整音源仅管理员可访问',403);
     return f;
   }
   result(a:Album){return {album:a,history:this.revisions(a.id)};}

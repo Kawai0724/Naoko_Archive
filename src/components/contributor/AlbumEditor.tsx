@@ -66,13 +66,12 @@ export default function AlbumEditor({initial:initialSource,editionId,isNewEditio
         <label className="image-picker">添加图片（可多选）<input aria-label="添加封面、歌词纸或内页图片" type="file" accept="image/png,image/jpeg,image/webp" multiple disabled={locked||busy||imageCount>=MAX_ALBUM_IMAGES} onChange={e=>{uploadImages(Array.from(e.target.files??[]));e.target.value='';}}/></label>
         <p className="editor-muted">PNG / JPEG / WebP · 每张 ≤10 MB</p>
       </div>
-      {album.media.filter(m=>m.type!=='audio').map((m,i)=><details className="editor-disclosure" key={m.id}><summary><span>{String(i+1).padStart(2,'0')}</span><strong>{m.displayName||'未命名图片'}</strong><small>{rightsOptions[m.rightsStatus]}</small></summary><div className="editor-disclosure-body"><div className="editor-grid">
+      {album.media.filter(m=>m.type!=='audio').map((m,i)=><details className="editor-disclosure" key={m.id}><summary><span>{String(i+1).padStart(2,'0')}</span><strong>{m.displayName||'未命名图片'}</strong></summary><div className="editor-disclosure-body"><div className="editor-grid">
         <Choice label="图片类别" value={m.type} options={{cover:'唱片封面 / 背面',scan:'歌词纸 / 内页 / 扫描'}} onChange={s=>media(m.id,{type:s as 'cover'|'scan'})}/><Field label="图片名称" value={m.displayName} onChange={displayName=>media(m.id,{displayName})}/>
 
-        <Field label="图片来源" value={m.source} onChange={source=>media(m.id,{source})}/><Choice label="图片权利状态" value={m.rightsStatus} options={rightsOptions} onChange={s=>media(m.id,{rightsStatus:s as RightsStatus})}/>
-        <label className="editor-check editor-field-wide"><input type="checkbox" checked={m.publicationConfirmed} onChange={e=>media(m.id,{publicationConfirmed:e.target.checked})}/>已确认有权公开此图片</label>
+        <Field label="图片来源" value={m.source} onChange={source=>media(m.id,{source})}/>
         </div><label className="image-picker">替换图片（PNG / JPEG / WebP，≤10 MB）<input aria-label={`选择图片 ${i+1} 的替换文件`} type="file" accept="image/png,image/jpeg,image/webp" disabled={busy||locked} onChange={e=>{const f=e.target.files?.[0];if(f)uploadImages([f],m.id);e.target.value='';}}/></label>{m.storageKey&&<PrivateImage storageKey={m.storageKey} token={token}/>}
-        <button className="editor-link" onClick={()=>{if(window.confirm('移除图片关联？私有文件与历史仍会保留。'))update({media:album.media.filter(x=>x.id!==m.id)});}}>移除图片</button>
+        <button className="editor-link" onClick={()=>{if(window.confirm('移除图片关联？文件与历史仍会保留。'))update({media:album.media.filter(x=>x.id!==m.id)});}}>移除图片</button>
       </div></details>)}
     </>}
     {tab===4&&<>
@@ -84,6 +83,7 @@ export default function AlbumEditor({initial:initialSource,editionId,isNewEditio
       {album.media.filter(m=>m.type==='audio').map((m,i)=><details className="editor-disclosure" key={m.id} open={activeAudioId===m.id?true:undefined}><summary><span>{String(i+1).padStart(2,'0')}</span><strong>{m.displayName||'音源资料待补充'}</strong><small>{m.codec||'仅元数据'} · {m.relatedTrackId?'曲目':m.audioScope==='track'?'曲目待关联':'整张专辑'}</small></summary><div className="editor-disclosure-body">
         <p className="editor-muted">{m.storageKey?`${m.codec} · ${m.bitDepth} bit / ${Number(m.sampleRate)/1000} kHz · ${m.channels} 声道 · ${m.durationSeconds?.toFixed(1)} 秒 · ${audioFileSize(m.size)}`:'未上传文件'}</p>
         <div className="editor-grid"><Field label="音源名称" value={m.displayName} onChange={displayName=>media(m.id,{displayName})}/><Choice label="此音源归属" value={m.relatedTrackId??(m.audioScope==='track'?'unlinked':'album')} options={{unlinked:'待关联曲目',album:'整张专辑（整轨）',...Object.fromEntries(album.tracks.map(t=>[t.id,`${t.position} ${t.title||'未命名曲目'}`]))}} onChange={s=>media(m.id,{relatedTrackId:s==='album'||s==='unlinked'?null:s,audioScope:s==='album'?'album':'track'})}/><Field label="音源来源" value={m.source} onChange={source=>media(m.id,{source})}/></div>
+        {m.storageKey&&<div className="shared-audio"><audio controls preload="none" src={`/api/contributor/audio/${m.storageKey.split('/').map(encodeURIComponent).join('/')}`}/><a className="editor-link" href={`/api/contributor/audio/${m.storageKey.split('/').map(encodeURIComponent).join('/')}?download=1`}>下载音源 ↗</a></div>}
         {m.relatedTrackId&&<button className="editor-link track-audio-link" onClick={()=>{setActiveTrackId(m.relatedTrackId!);setTab(1);}}>查看关联曲目 ↗</button>}
         <label className="image-picker">{m.storageKey?'替换无损音源':'补充无损音源文件'}<input aria-label={`选择音源 ${i+1} 的文件`} type="file" accept={LOSSLESS_AUDIO_ACCEPT} disabled={busy||locked} onChange={e=>{const f=e.target.files?.[0];if(f){if(m.audioScope==='track'&&!m.relatedTrackId){setError('请先为音源选择关联曲目，或改为整张专辑');return;}uploadAudio([f],m.relatedTrackId??'album',m.id);};e.target.value='';}}/></label>
         <button className="editor-link" onClick={()=>{if(window.confirm('移除这项音源关联？原文件与历史仍会保留。'))update({media:album.media.filter(x=>x.id!==m.id)});}}>移除音源关联</button>

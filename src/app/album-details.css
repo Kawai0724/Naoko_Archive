@@ -41,3 +41,5 @@
   .release-detail-intro .detail-translated-title{font-size:18px}
   .album-edition-intro .detail-description,.release-detail-intro .detail-description{font-size:16px;line-height:1.85}
 }
+
+.shared-audio-list{border-top:1px solid var(--line)}.shared-audio{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;min-width:0;padding:24px 0}.shared-audio-list>.shared-audio{border-bottom:1px solid var(--line)}.shared-audio h3{width:100%;font:500 20px/1.5 var(--serif);overflow-wrap:anywhere}.shared-audio audio{width:100%;max-width:560px;min-width:0;height:44px}.shared-audio a{font-size:14px}.shared-audio-list .shared-audio>a:first-of-type:not(:last-child){width:100%}

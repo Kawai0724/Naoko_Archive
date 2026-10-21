@@ -65,5 +65,5 @@ export type PublicTrack = Omit<AlbumTrack, 'lyricsText' | 'lyricsRightsStatus' |
 export type PublicEdition = Omit<AlbumEdition, 'tracks' | 'editorNotes'> & { tracks: PublicTrack[] };
 export type PublicAlbum = Omit<Album, 'editorNotes' | 'changeNote' | 'deletedAt' | 'media' | 'tracks' | 'editions'> & {
   editions: PublicEdition[];
-  tracks: PublicTrack[]; media: { id: string; type: AlbumMedia['type']; displayName: string | null; relatedEditionId: string | null; url: string }[];
+  tracks: PublicTrack[]; media: { id: string; type: AlbumMedia['type']; displayName: string | null; relatedEditionId: string | null; relatedTrackId?: string | null; url: string }[];
 };
