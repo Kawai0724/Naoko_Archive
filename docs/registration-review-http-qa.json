@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-10-21T11:49:36.067Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "first Contributor visit explains registration and login",
+    "pending account persists and cannot edit, upload or reach administrator resources; role spoof ignored",
+    "admin sees queue; reject, applicant resubmit and approve activate editing without a new session",
+    "website change stays private until approval; live About refresh; contributor self-approval and stale review denied",
+    "approved user can submit an album with optional credits blank; administrator content queue and publish work",
+    "invitation does not bypass registration approval",
+    "registration preserves same-origin protection"
+  ]
+}

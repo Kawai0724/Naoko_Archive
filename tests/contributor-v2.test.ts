@@ -15,6 +15,7 @@ function setup(t:TestContext){
   const directory=mkdtempSync(path.join(tmpdir(),'naoko-v2-')),store=new AlbumStore(directory),identity=new IdentityStore(store.db);identity.bootstrap(password);
   const admin=identity.login('fly-me-to-1980',password).user;
   const alice=identity.accept(identity.invite(admin).token,'alice_fan',password),bob=identity.accept(identity.invite(admin).token,'bob_fan',password);
+  identity.reviewRegistration(admin,alice.user.id,'approved',1,'');identity.reviewRegistration(admin,bob.user.id,'approved',1,'');
   t.after(()=>{try{store.close();}catch{}rmSync(directory,{recursive:true,force:true});});
   return {directory,store,identity,admin,alice,bob,a:new ContributorStore(store,alice.user),b:new ContributorStore(store,bob.user),s:new ContributorStore(store,admin)};
 }

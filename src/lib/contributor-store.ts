@@ -8,7 +8,7 @@ export class ContributorStore{
   readonly identity:IdentityStore;
   constructor(readonly store:AlbumStore,readonly user:ContributorUser){
     this.identity=new IdentityStore(store.db);
-    const current=store.db.prepare('SELECT role FROM contributor_users WHERE id=? AND disabled=0').get(user.id) as {role:string}|undefined;
+    const current=store.db.prepare("SELECT role FROM contributor_users WHERE id=? AND disabled=0 AND approval_status='approved'").get(user.id) as {role:string}|undefined;
     if(!current||current.role!==user.role)throw new StoreError('请重新登录',401);
   }
   list(){return this.store.list().filter(a=>this.user.role==='admin'||this.identity.owner(a.id)===this.user.id);}

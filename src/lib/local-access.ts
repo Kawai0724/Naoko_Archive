@@ -5,11 +5,11 @@ import { contributorCookie,identityStore,requestToken,requireSameOrigin } from '
 import { localAllowed } from './local-policy';
 export { localAllowed } from './local-policy';
 export async function currentContributor(){return identityStore().session((await cookies()).get(contributorCookie)?.value);}
-export async function localPage(){const user=await currentContributor();if(!user)redirect('/contributor/login');return {token:'',admin:user.role==='admin',user};}
+export async function localPage(){const user=await currentContributor();if(!user)redirect('/contributor/login');if(user.accountStatus!=='approved')redirect('/contributor/application');return {token:'',admin:user.role==='admin',user};}
 export async function localPublicContext(){return false;}
-export async function guardApi(req:Request){
+export async function guardApi(req:Request,allowPending=false){
   if(!['GET','HEAD','OPTIONS'].includes(req.method))requireSameOrigin(req);
-  const user=identityStore().session(requestToken(req));if(!user)throw new StoreError('请先登录',401);return user;
+  const user=identityStore().session(requestToken(req));if(!user)throw new StoreError('请先登录',401);if(!allowPending&&user.accountStatus!=='approved')throw new StoreError('账号尚未获准参与共建，请查看注册申请状态',403);return user;
 }
 export async function jsonBody(req:Request){
   if(!req.headers.get('content-type')?.startsWith('application/json'))throw new StoreError('请使用 JSON 请求');

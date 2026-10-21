@@ -1,0 +1,11 @@
+'use client';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+export default function RegistrationForm(){
+  const router=useRouter(),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  async function submit(e:React.FormEvent){e.preventDefault();if(password!==confirm){setError('两次输入的密码不一致');return;}setBusy(true);setError('');try{
+    const r=await fetch('/api/contributor/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password,reason})}),d=await r.json();if(!r.ok)throw new Error(d.error);router.replace('/contributor/application');router.refresh();
+  }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  return <main className="contributor-home"><h1>申请注册</h1><p className="editor-muted">注册申请由管理员审核，通过后即可参与编辑。</p><form onSubmit={submit} className="access-form"><div className="editor-field"><label htmlFor="register-name">用户名</label><input id="register-name" value={username} onChange={e=>setUsername(e.target.value)} autoComplete="username" pattern="[A-Za-z0-9][A-Za-z0-9_-]{2,39}" minLength={3} maxLength={40} required/><small>3–40 个英文字母、数字、下划线或连字符</small></div><div className="editor-field"><label htmlFor="register-password">设置密码</label><input id="register-password" type="password" autoComplete="new-password" minLength={12} maxLength={256} required value={password} onChange={e=>setPassword(e.target.value)}/><small>至少 12 个字符</small></div><div className="editor-field"><label htmlFor="register-confirm">确认密码</label><input id="register-confirm" type="password" autoComplete="new-password" required value={confirm} onChange={e=>setConfirm(e.target.value)}/></div><div className="editor-field"><label htmlFor="register-reason">申请说明（可选）</label><textarea id="register-reason" maxLength={2000} value={reason} onChange={e=>setReason(e.target.value)} placeholder="你希望参与整理哪些资料？"/></div>{error&&<p role="alert" className="editor-error">{error}</p>}<button className="editor-button" disabled={busy}>{busy?'正在提交…':'提交注册申请'}</button><Link className="editor-link" href="/contributor/login">已有账号，前往登录 ↗</Link></form></main>;
+}

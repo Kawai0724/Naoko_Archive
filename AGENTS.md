@@ -1,3 +1,5 @@
+2026-10-21 注册与审批更新：以 docs/registration-review.md 为准，覆盖此前仅邀请/邀请即激活规则。首次参与提示注册或登录，自行申请与邀请新账号均须管理员批准。未获批账号只允许查看申请/重新提交，不可编辑上传。管理员 /contributor/admin 集中审批注册、专辑内容、网站介绍/共建规则修改；文字批准后生效，保持既有页面视觉。服务器用系统级 systemd，Nginx Host 用 $http_host 保留端口，不开放公网。
+
 2026-10-21 Contributor V2：用户已授权先本地隔离测试，再部署腾讯云。以 docs/contributor-v2.md 为准，覆盖旧版仅本地/模拟角色限制。账号仅管理员邀请，管理员 fly-me-to-1980；所有 Contributor 页面/API 必须使用真实数据库会话和 ContributorStore 权限边界，不得恢复开发模式认证绕过。生产资料库只作追加迁移，禁止复制本地测试资料覆盖。COS 保持私有、pending/* 最小权限；不开放公网端口，后续采用 Tailscale HTTPS 私人网络。公开页面视觉保持不变。
 
 2026-10-21 Contributor Albums V1：以 `docs/contributor-albums-brief.md` 和 `docs/contributor-albums-v1.md` 为准。本专项允许本地 SQLite、唱片管理和受保护的本机审核，覆盖早期“不做数据库/后台”限制。只在 `/Users/xiaowenli/Projects/naoko-archive` 本地实现；不得部署 Sites 或同步公网副本。保留照片开屏、ENTER、`/archive` 纯排版、黑色 About/Credits 与写真/影像内容。新增本地 Contributor 默认署名为 `fly-me-to-1980`，全站发起人姓名仍按下面的最新署名。私人数据位于忽略提交的 `data/`，不可提交、复制到 public 或纳入生产包；生产编辑/API 必须关闭，未来公网使用先完成真实服务端鉴权。

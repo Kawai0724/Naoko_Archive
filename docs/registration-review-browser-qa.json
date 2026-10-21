@@ -1,0 +1,11 @@
+{
+  "environment": "isolated localhost:3415 production build and temporary SQLite database",
+  "verified": [
+    "first visit registration/login choices",
+    "registration form username, password, confirmation and optional application reason",
+    "administrator login and dashboard navigation",
+    "three approval queues and expanded registration details with approval/rejection controls",
+    "390px administrator page scrollWidth=390; no horizontal overflow"
+  ],
+  "productionDataUsed": false
+}

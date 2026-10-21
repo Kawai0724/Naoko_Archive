@@ -1,7 +1,8 @@
 import { createHash,randomBytes,randomUUID,scryptSync,timingSafeEqual } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { StoreError } from './album-store';
-export type ContributorUser={id:string;username:string;role:'admin'|'contributor'};
+export type AccountStatus='pending'|'approved'|'rejected';
+export type ContributorUser={id:string;username:string;role:'admin'|'contributor';accountStatus:AccountStatus};
 type UserRow=ContributorUser&{password_hash:string;disabled:number};
 export const SESSION_SECONDS=8*60*60;
 const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
@@ -15,7 +16,8 @@ function matchesPassword(password:string,hash:string){
   const actual=scryptSync(password,salt,64),expected=Buffer.from(key,'hex');
   return actual.length===expected.length&&timingSafeEqual(actual,expected);
 }
-const publicUser=(u:ContributorUser):ContributorUser=>({id:u.id,username:u.username,role:u.role});
+const publicUser=(u:ContributorUser):ContributorUser=>({id:u.id,username:u.username,role:u.role,accountStatus:u.accountStatus});
+export type RegistrationApplication={user_id:string;username:string;reason:string;status:AccountStatus;admin_note:string;created_at:number;reviewed_at:number|null;revision:number};
 export class IdentityStore{
   constructor(readonly db:DatabaseSync){
     db.exec(`CREATE TABLE IF NOT EXISTS contributor_users(id TEXT PRIMARY KEY,username TEXT NOT NULL COLLATE NOCASE UNIQUE,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','contributor')),disabled INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
@@ -24,13 +26,19 @@ export class IdentityStore{
       CREATE TABLE IF NOT EXISTS album_owners(album_id TEXT PRIMARY KEY REFERENCES albums(id),user_id TEXT NOT NULL REFERENCES contributor_users(id));
       CREATE TABLE IF NOT EXISTS contributor_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,expires_at INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS contributor_audit(id INTEGER PRIMARY KEY,actor_id TEXT NOT NULL,action TEXT NOT NULL,target TEXT NOT NULL,created_at INTEGER NOT NULL);`);
+    db.exec('BEGIN IMMEDIATE');try{
+      const columns=db.prepare('PRAGMA table_info(contributor_users)').all() as {name:string}[];
+      if(!columns.some(c=>c.name==='approval_status'))db.exec("ALTER TABLE contributor_users ADD COLUMN approval_status TEXT NOT NULL DEFAULT 'approved' CHECK(approval_status IN ('pending','approved','rejected'))");
+      db.exec(`CREATE TABLE IF NOT EXISTS contributor_applications(user_id TEXT PRIMARY KEY REFERENCES contributor_users(id),reason TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),admin_note TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,reviewed_at INTEGER,reviewer_id TEXT,revision INTEGER NOT NULL DEFAULT 1);`);
+      db.exec('COMMIT');
+    }catch(e){db.exec('ROLLBACK');throw e;}
   }
   bootstrap(password:string|undefined){
     if(this.db.prepare("SELECT id FROM contributor_users WHERE role='admin'").get())return;
     if(!password)throw new StoreError('管理员账号尚未配置',503);
     const hash=hashPassword(password),id=randomUUID();this.db.exec('BEGIN IMMEDIATE');try{
       if(!this.db.prepare("SELECT id FROM contributor_users WHERE role='admin'").get()){
-        this.db.prepare('INSERT INTO contributor_users VALUES(?,?,?,?,0,?)').run(id,'fly-me-to-1980',hash,'admin',Date.now());
+        this.db.prepare('INSERT INTO contributor_users(id,username,password_hash,role,disabled,created_at) VALUES(?,?,?,?,0,?)').run(id,'fly-me-to-1980',hash,'admin',Date.now());
         this.db.prepare('INSERT OR IGNORE INTO album_owners SELECT id,? FROM albums').run(id);
       }this.db.exec('COMMIT');
     }catch(e){this.db.exec('ROLLBACK');throw e;}
@@ -46,7 +54,7 @@ export class IdentityStore{
   login(username:string,password:string){
     if(username.length>40||password.length>256)throw new StoreError('用户名或密码不正确',401);
     this.limit('login:total',200);this.limit(`login:${username.toLowerCase()}`);
-    const u=this.db.prepare('SELECT * FROM contributor_users WHERE username=?').get(username) as UserRow|undefined;
+    const u=this.db.prepare('SELECT *,approval_status AS accountStatus FROM contributor_users WHERE username=?').get(username) as UserRow|undefined;
     const valid=matchesPassword(password,u?.password_hash??'00000000000000000000000000000000:'+ '00'.repeat(64));
     if(!u||u.disabled||!valid)throw new StoreError('用户名或密码不正确',401);
     this.db.prepare('DELETE FROM contributor_limits WHERE key=?').run(`login:${username.toLowerCase()}`);return this.createSession(u);
@@ -59,11 +67,11 @@ export class IdentityStore{
   }
   session(token:string|undefined):ContributorUser|null{
     if(!token||!/^[\w-]{43}$/.test(token))return null;
-    const u=this.db.prepare('SELECT u.id,u.username,u.role FROM contributor_sessions s JOIN contributor_users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(digest(token),Date.now()) as ContributorUser|undefined;
+    const u=this.db.prepare('SELECT u.id,u.username,u.role,u.approval_status AS accountStatus FROM contributor_sessions s JOIN contributor_users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(digest(token),Date.now()) as ContributorUser|undefined;
     return u?publicUser(u):null;
   }
   logout(token:string|undefined){if(token)this.db.prepare('DELETE FROM contributor_sessions WHERE token_hash=?').run(digest(token));}
-  requireAdmin(user:ContributorUser){if(!this.db.prepare("SELECT id FROM contributor_users WHERE id=? AND role='admin' AND disabled=0").get(user.id))throw new StoreError('仅管理员可操作',403);}
+  requireAdmin(user:ContributorUser){if(!this.db.prepare("SELECT id FROM contributor_users WHERE id=? AND role='admin' AND disabled=0 AND approval_status='approved'").get(user.id))throw new StoreError('仅管理员可操作',403);}
   invite(user:ContributorUser){
     this.requireAdmin(user);const id=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=Date.now()+7*86400000;
     this.db.prepare('INSERT INTO contributor_invites VALUES(?,?,?,?,NULL,0)').run(id,digest(token),user.id,expiresAt);
@@ -77,19 +85,58 @@ export class IdentityStore{
       const invite=this.db.prepare('SELECT id FROM contributor_invites WHERE token_hash=? AND expires_at>? AND used_by IS NULL AND revoked=0').get(digest(token),Date.now()) as {id:string}|undefined;
       if(!invite)throw new StoreError('邀请无效或已过期');
       if(this.db.prepare('SELECT id FROM contributor_users WHERE username=?').get(username))throw new StoreError('这个用户名已被使用',409);
-      const user:ContributorUser={id:randomUUID(),username,role:'contributor'};
-      this.db.prepare('INSERT INTO contributor_users VALUES(?,?,?,?,0,?)').run(user.id,user.username,hash,user.role,Date.now());
+      const user:ContributorUser={id:randomUUID(),username,role:'contributor',accountStatus:'pending'};
+      this.db.prepare("INSERT INTO contributor_users(id,username,password_hash,role,disabled,created_at,approval_status) VALUES(?,?,?,?,0,?,'pending')").run(user.id,user.username,hash,user.role,Date.now());
+      this.db.prepare("INSERT INTO contributor_applications(user_id,reason,status,created_at) VALUES(?,?,'pending',?)").run(user.id,'通过管理员邀请申请加入',Date.now());
       this.db.prepare('UPDATE contributor_invites SET used_by=? WHERE id=?').run(user.id,invite.id);
       const session=this.createSession(user);this.audit(user,'accept-invite',invite.id);this.db.exec('COMMIT');return session;
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
   adminData(user:ContributorUser){this.requireAdmin(user);return {
-    users:this.db.prepare('SELECT id,username,role,disabled,created_at FROM contributor_users ORDER BY created_at').all().map(row=>({...row})),
+    users:this.db.prepare('SELECT id,username,role,disabled,created_at,approval_status FROM contributor_users ORDER BY created_at').all().map(row=>({...row})),
     invites:this.db.prepare('SELECT id,expires_at,used_by,revoked FROM contributor_invites ORDER BY expires_at DESC LIMIT 100').all().map(row=>({...row}))
   };}
   revoke(user:ContributorUser,id:string){this.requireAdmin(user);this.db.prepare('UPDATE contributor_invites SET revoked=1 WHERE id=? AND used_by IS NULL').run(id);this.audit(user,'revoke-invite',id);}
   disable(user:ContributorUser,id:string,disabled:boolean){
     this.requireAdmin(user);this.db.prepare("UPDATE contributor_users SET disabled=? WHERE id=? AND role='contributor'").run(disabled?1:0,id);
     if(disabled)this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(id);this.audit(user,disabled?'disable-user':'enable-user',id);
+  }
+  register(username:string,password:string,reason:string){
+    this.limit('registration:total',50,60*60*1000);
+    if(!/^[A-Za-z0-9][A-Za-z0-9_-]{2,39}$/.test(username))throw new StoreError('用户名使用 3–40 个英文字母、数字、下划线或连字符');
+    if(reason.length>2000)throw new StoreError('申请说明请控制在 2000 字以内');
+    const hash=hashPassword(password);this.db.exec('BEGIN IMMEDIATE');try{
+      if(this.db.prepare('SELECT id FROM contributor_users WHERE username=?').get(username))throw new StoreError('这个用户名已被使用',409);
+      const user:ContributorUser={id:randomUUID(),username,role:'contributor',accountStatus:'pending'};
+      this.db.prepare("INSERT INTO contributor_users(id,username,password_hash,role,disabled,created_at,approval_status) VALUES(?,?,?,?,0,?,'pending')").run(user.id,username,hash,user.role,Date.now());
+      this.db.prepare("INSERT INTO contributor_applications(user_id,reason,status,created_at) VALUES(?,?,'pending',?)").run(user.id,reason.trim(),Date.now());
+      const result=this.createSession(user);this.audit(user,'registration-request',user.id);this.db.exec('COMMIT');return result;
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  application(user:ContributorUser){
+    const r=this.db.prepare('SELECT a.*,u.username FROM contributor_applications a JOIN contributor_users u ON u.id=a.user_id WHERE a.user_id=?').get(user.id) as RegistrationApplication|undefined;
+    return r?{...r}:null;
+  }
+  registrationQueue(admin:ContributorUser){this.requireAdmin(admin);return (this.db.prepare('SELECT a.*,u.username FROM contributor_applications a JOIN contributor_users u ON u.id=a.user_id ORDER BY a.created_at DESC').all() as RegistrationApplication[]).map(r=>({...r}));}
+  reviewRegistration(admin:ContributorUser,userId:string,decision:'approved'|'rejected',expected:number,note:string){
+    this.requireAdmin(admin);if(!['approved','rejected'].includes(decision)||!Number.isSafeInteger(expected)||note.length>2000)throw new StoreError('审核信息无效');
+    this.db.exec('BEGIN IMMEDIATE');try{
+      const r=this.db.prepare('SELECT * FROM contributor_applications WHERE user_id=?').get(userId) as RegistrationApplication|undefined;
+      if(!r)throw new StoreError('申请不存在',404);
+      if(r.status!=='pending'||r.revision!==expected)throw new StoreError('申请已更新，请刷新后再审核',409);
+      this.db.prepare('UPDATE contributor_applications SET status=?,admin_note=?,reviewed_at=?,reviewer_id=?,revision=revision+1 WHERE user_id=?').run(decision,note.trim(),Date.now(),admin.id,userId);
+      this.db.prepare("UPDATE contributor_users SET approval_status=? WHERE id=? AND role='contributor'").run(decision,userId);
+      this.audit(admin,'registration-'+decision,userId);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  resubmitRegistration(user:ContributorUser,reason:string,expected:number){
+    if(reason.length>2000||!Number.isSafeInteger(expected))throw new StoreError('申请信息无效');
+    this.db.exec('BEGIN IMMEDIATE');try{
+      const r=this.application(user);if(!r)throw new StoreError('申请不存在',404);
+      if(r.status!=='rejected'||r.revision!==expected)throw new StoreError('只能重新提交已退回的申请',409);
+      this.db.prepare("UPDATE contributor_applications SET reason=?,status='pending',admin_note='',reviewed_at=NULL,reviewer_id=NULL,created_at=?,revision=revision+1 WHERE user_id=?").run(reason.trim(),Date.now(),user.id);
+      this.db.prepare("UPDATE contributor_users SET approval_status='pending' WHERE id=? AND role='contributor'").run(user.id);
+      this.audit(user,'registration-resubmit',user.id);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
 }

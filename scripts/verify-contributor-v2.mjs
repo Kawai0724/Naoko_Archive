@@ -16,14 +16,14 @@ async function request(path,{cookie='',method='GET',body,origin=base,expected=20
 }
 const password=process.env.CONTRIBUTOR_TEST_PASSWORD||'test-only-password-very-long';
 await request('/api/contributor/albums',{expected:401});await request('/api/contributor/admin',{expected:401});
-const anon=await request('/contributor',{raw:true,expected:307});assert.equal(anon.headers.get('location'),'/contributor/login');
+const anon=await request('/contributor',{raw:true});assert.ok((await anon.text()).includes('申请注册'));
 const login=await request('/api/contributor/auth/login',{method:'POST',body:{username:'fly-me-to-1980',password},raw:true});
 const admin=login.headers.get('set-cookie').split(';')[0];assert.ok(login.headers.get('set-cookie').includes('HttpOnly'));results.push('anonymous access rejected; administrator login and HttpOnly cookie');
 await request('/contributor/members',{cookie:admin,raw:true});
 async function inviteUser(prefix){
   const {invite}=await request('/api/contributor/admin',{cookie:admin,method:'POST',body:{action:'invite'},expected:201});
   const username=prefix+'_'+randomUUID().slice(0,8),r=await request('/api/contributor/auth/accept',{method:'POST',body:{token:invite.token,username,password},expected:201,raw:true});
-  await request('/api/contributor/auth/accept',{method:'POST',body:{token:invite.token,username:username+'2',password},expected:400});return {cookie:r.headers.get('set-cookie').split(';')[0],user:(await r.json()).user};
+  await request('/api/contributor/auth/accept',{method:'POST',body:{token:invite.token,username:username+'2',password},expected:400});const account={cookie:r.headers.get('set-cookie').split(';')[0],user:(await r.json()).user};await request('/api/contributor/requests',{cookie:admin,method:'POST',body:{action:'registration',id:account.user.id,decision:'approved',expectedRevision:1}});return account;
 }
 const alice=await inviteUser('alice'),bob=await inviteUser('bob');results.push('two invited accounts; invite replay rejected');
 await request('/api/contributor/admin',{cookie:alice.cookie,expected:403});await request('/api/contributor/admin',{cookie:alice.cookie,method:'POST',body:{action:'invite'},expected:403});
