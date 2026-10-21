@@ -1,0 +1,25 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync,rmSync,readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { AlbumStore,StoreError } from '../src/lib/album-store';
+import { IdentityStore } from '../src/lib/identity-store';
+import { ContributorStore } from '../src/lib/contributor-store';
+import { emptyAlbum,emptyEdition,emptyTrack } from '../src/lib/albums';
+test('whole-album deletion hides all versions and published media while preserving files, snapshots and restore permissions',t=>{
+  const directory=mkdtempSync(path.join(tmpdir(),'naoko-whole-album-')),store=new AlbumStore(directory),identity=new IdentityStore(store.db),password='whole-album-deletion-test-password';identity.bootstrap(password);const admin=identity.login('fly-me-to-1980',password).user;
+  const owner=identity.register('album_author',password,''),other=identity.register('other_author',password,'');identity.reviewRegistration(admin,owner.user.id,'approved',1,'');identity.reviewRegistration(admin,other.user.id,'approved',1,'');
+  const a=new ContributorStore(store,identity.session(owner.token)!),b=new ContributorStore(store,identity.session(other.token)!),s=new ContributorStore(store,admin);
+  t.after(()=>{store.close();rmSync(directory,{recursive:true,force:true});});
+  const one=emptyEdition(),two=emptyEdition(),track=emptyTrack(1);one.editionName='First';two.editionName='Second';track.title='Optional credits empty';one.tracks=[track];two.tracks=[{...track,id:'another-track'}];
+  let album=a.save({...emptyAlbum(),title:'Whole record',editions:[one,two]},'draft');assert.equal(a.canDelete(album.id),true);assert.throws(()=>b.canDelete(album.id),e=>e instanceof StoreError&&e.status===404);
+  const png=Buffer.from('89504e470d0a1a0a0102030405060708','hex');album=store.attachImages(album,[{name:'one.png',bytes:png}],album.id,album.revision,undefined,'cover',one.id);album=store.attachImages(album,[{name:'two.png',bytes:png}],album.id,album.revision,undefined,'cover',two.id);
+  album=a.save({...album,media:album.media.map(m=>({...m,rightsStatus:'licensed-public',publicationConfirmed:true}))},'submit',album.id,album.revision);assert.equal(a.canDelete(album.id),false);assert.equal(s.canDelete(album.id),true);assert.throws(()=>a.transition(album.id,'delete',album.revision),/管理员/);
+  album=s.transition(album.id,'approve',album.revision);const published=store.publishedRaw(album.id),versions=structuredClone(album.editions),media=structuredClone(album.media),revision=album.revision,files=album.media.map(m=>({key:m.storageKey!,bytes:readFileSync(path.join(directory,'private-media',m.storageKey!))}));
+  assert.equal(a.canDelete(album.id),false);assert.throws(()=>b.transition(album.id,'delete',revision),e=>e instanceof StoreError&&e.status===404);assert.throws(()=>s.transition(album.id,'delete',revision-1),e=>e instanceof StoreError&&e.status===409);
+  album=s.transition(album.id,'delete',revision);assert.ok(album.deletedAt);assert.equal(store.publishedRaw(album.id),null);assert.ok(!store.published().some(v=>v.id===album.id));assert.deepEqual(album.editions,versions);assert.deepEqual(album.media,media);
+  assert.throws(()=>s.media(media[0].storageKey!),e=>e instanceof StoreError&&e.status===404);assert.throws(()=>a.transition(album.id,'restore',album.revision),/管理员/);for(const f of files)assert.deepEqual(readFileSync(path.join(directory,'private-media',f.key)),f.bytes);
+  album=s.transition(album.id,'restore',album.revision);assert.equal(album.deletedAt,null);assert.deepEqual(store.publishedRaw(album.id),published);assert.deepEqual(album.editions,versions);assert.equal(s.media(media[0].storageKey!).album_id,album.id);
+  const history=s.revisions(album.id);assert.ok(history.some(r=>r.action==='delete'));assert.ok(history.some(r=>r.action==='restore'));assert.equal(identity.owner(album.id),owner.user.id);
+});

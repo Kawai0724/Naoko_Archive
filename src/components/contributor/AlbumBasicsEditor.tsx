@@ -4,6 +4,7 @@ import { useEffect,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { albumTypes,partialDate,statusLabels } from '@/lib/albums';
 import type { Album } from '@/lib/types';
+import DeleteAlbumButton from './DeleteAlbumButton';
 export default function AlbumBasicsEditor({initial,token,admin,hasPublished=false}:{initial:Album;token:string;admin:boolean;hasPublished?:boolean}){
   const locked=!admin&&initial.status==='pending-review';
   const [album,setAlbum]=useState(initial),[busy,setBusy]=useState(false),[dirty,setDirty]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');const router=useRouter();
@@ -19,6 +20,6 @@ export default function AlbumBasicsEditor({initial,token,admin,hasPublished=fals
     
     {album.status==='rejected'&&album.changeNote&&<div className="editor-muted review-note"><strong>退回原因</strong><p>{album.changeNote}</p></div>}{locked&&<p className="editor-muted">投稿正在审核</p>}
     {admin&&album.status==='pending-review'&&<div className="editor-actions local-review-actions"><button className="editor-button" disabled={busy||dirty} onClick={()=>save('approve')}>批准专辑与版本</button><button className="editor-link" disabled={busy||dirty} onClick={()=>save('reject')}>退回修改</button></div>}
-    {album.id&&<button className="editor-link editor-delete" disabled={busy||locked||hasPublished&&!admin} onClick={()=>save('delete')}>移除专辑</button>}
+    {album.id&&(admin||!hasPublished)&&<DeleteAlbumButton album={album} disabled={busy||locked}/>}
   </main>;
 }

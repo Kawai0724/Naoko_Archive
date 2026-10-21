@@ -1,0 +1,9 @@
+{
+  "testedAt": "2026-10-21T15:41:32.691Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "DELETE requires a real session, same-origin, explicit confirmation and current revision; other users cannot delete; own unpublished album deletes with both versions retained and restores",
+    "only administrator can remove reviewed/published album; public album and all version routes disappear; upload to removed album denied; restore preserves versions, tracks and published content"
+  ],
+  "browserAlbumId": "b602d8dd-4fcd-4c7e-987c-59bd6a9056f2"
+}

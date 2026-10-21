@@ -13,6 +13,7 @@ export class ContributorStore{
   }
   list(){return this.store.list().filter(a=>this.user.role==='admin'||this.identity.owner(a.id)===this.user.id);}
   get(id:string){const a=this.store.get(id);if(!a||this.user.role!=='admin'&&this.identity.owner(id)!==this.user.id)throw new StoreError('记录不存在',404);return a;}
+  canDelete(id:string){const a=this.get(id);return this.user.role==='admin'||(a.status!=='pending-review'&&!this.store.db.prepare('SELECT id FROM albums WHERE id=? AND published_json IS NOT NULL').get(id));}
   edit(id:string){const a=this.get(id);if(a.deletedAt)throw new StoreError('记录已移除',404);if(a.status==='pending-review'&&this.user.role!=='admin')throw new StoreError('投稿正在审核，请等待审核结果',409);return a;}
   revisions(id:string){this.get(id);return this.store.revisions(id);}
   save(input:unknown,action:'draft'|'submit',id?:string,expected=0){
