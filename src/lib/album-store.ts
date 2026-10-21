@@ -151,4 +151,12 @@ export class AlbumStore {
   file(key:string){const info=this.fileInfo(key);if(info?.mime_type.startsWith('audio/'))throw new StoreError('请使用受保护的音源接口',403);if(!info)throw new StoreError('文件不存在',404);return {bytes:readFileSync(path.join(this.directory,'private-media',key)),mime:info.mime_type};}
 }
 const stores=new Map<string,AlbumStore>();
-export function albumStore(){if(process.env.NODE_ENV!=='development')throw new StoreError('本地资料库仅限开发环境',404);const dir=path.resolve(/*turbopackIgnore: true*/ process.env.ARCHIVE_DATA_DIR||path.join(process.cwd(),'data'));let store=stores.get(dir);if(!store){store=new AlbumStore(dir);stores.set(dir,store);}return store;}
+// Production only uses a separately provisioned data directory when this flag is
+// set. This prevents a deployment from silently creating or serving a database
+// from the application checkout.
+export function archiveDataEnabled(){return process.env.NODE_ENV==='development'||(process.env.ARCHIVE_PUBLIC_DATA==='1'&&!!process.env.ARCHIVE_DATA_DIR);}
+export function albumStore(){
+  if(!archiveDataEnabled())throw new StoreError('资料库尚未配置',404);
+  const dir=path.resolve(/*turbopackIgnore: true*/ process.env.ARCHIVE_DATA_DIR||path.join(process.cwd(),'data'));
+  let store=stores.get(dir);if(!store){store=new AlbumStore(dir);stores.set(dir,store);}return store;
+}

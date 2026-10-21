@@ -1,12 +1,13 @@
 import 'server-only';
 import { releases } from '@/data/releases';
-import { albumStore } from './album-store';
+import { albumStore,archiveDataEnabled } from './album-store';
 import { releaseToAlbum, publicAlbum } from './albums';
 import { localPublicContext } from './local-access';
 import { editionCover } from './edition-hierarchy';
 import { withLocalCoverPreviews,type CatalogueAlbum } from './local-cover-preview';
 export async function publicAlbums():Promise<CatalogueAlbum[]>{
   if(await localPublicContext()){const store=albumStore();return store.published().map(a=>withLocalCoverPreviews(a,store.get(a.id)));}
+  if(archiveDataEnabled())return albumStore().published();
   return releases.map(r=>publicAlbum(releaseToAlbum(r,'')));
 }
 export function artwork(a:CatalogueAlbum,editionId=a.editions[0]?.id){
