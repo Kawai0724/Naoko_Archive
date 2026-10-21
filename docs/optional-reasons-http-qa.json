@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-10-21T16:30:55.902Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "omitted content reason persists empty and renders 理由：无",
+    "administrator manually approves empty-reason content",
+    "whitespace deletion reason persists empty and administrator may approve",
+    "2001 characters rejected",
+    "site-change omitted reason accepted"
+  ],
+  "previewId": "f57d9659-eda5-4aa8-9c9b-28ec6dc11695",
+  "editableId": "2b0bf547-a6d0-40f4-921b-f58ac0caa5fc"
+}

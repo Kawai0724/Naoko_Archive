@@ -27,7 +27,7 @@ export class ContributorStore{
   }
   transition(id:string,action:'approve'|'reject'|'delete'|'restore',expected:number,note=''){
     const a=this.get(id);
-    if(action==='delete')throw new StoreError('删除专辑需要填写原因并提交审核',403);
+    if(action==='delete')throw new StoreError('删除专辑需要提交审核',403);
     if(action==='approve'||action==='reject'){
       this.identity.requireAdmin(this.user);if(a.revision!==expected)throw new StoreError('记录已更新，请重新载入',409);
       const request=this.requests.pending(id);if(!request||request.kind!=='content')throw new StoreError('请在管理员后台按申请消息审核',409);

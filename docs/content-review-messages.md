@@ -5,8 +5,8 @@
 ## 用户操作
 
 - 专辑版本目录顶部按钮依次为 **删除整个专辑 → 编辑专辑 → 添加版本**。删除不再散落在列表、编辑页底部。
-- 删除按钮打开原因表单；原因必填，提交的是申请。管理员自己的删除也要提交并审核，批准前公开专辑、全部版本和媒体关联保持原状。
-- 专辑/版本编辑的“保存草稿”继续只保存工作稿。“提交审核”要求填写原因，为本次完整提交建立一条不可改写的审核消息；批准前公开内容不变。
+- 删除按钮打开原因表单；理由可选，提交的是申请。管理员自己的删除也要提交并审核，批准前公开专辑、全部版本和媒体关联保持原状。
+- 专辑/版本编辑的“保存草稿”继续只保存工作稿。“提交审核”可填写理由，也可留空，为本次完整提交建立一条不可改写的审核消息；批准前公开内容不变。
 - 同一专辑同时只能有一条待审内容或删除申请。待审期间所有人（含管理员）不可继续修改或上传覆盖；拒绝后解除锁定，再修改重提。
 - `/contributor/submissions` 显示自己的历史消息；管理员可见全部。消息包含真实提交用户、动作、专辑、原因、时间、具体修改前后、审核人、回复、结果。
 - `/contributor/admin` → 内容审核：按申请逐条批准/拒绝，状态可筛选待审、已通过、已拒绝和全部。已批准/拒绝的消息保留；新申请另建消息。
@@ -19,9 +19,9 @@
 
 ## API
 
-- `POST /api/contributor/albums` 或 `PATCH /api/contributor/albums/{id}`，`action:"submit"` 另须 `reason`（1–2000 字）。草稿无需原因。
+- `POST /api/contributor/albums` 或 `PATCH /api/contributor/albums/{id}`，`action:"submit"` 可选 `reason`（最多 2000 字，省略或仅空白按空字符串保存）。草稿无需原因。
 - `DELETE /api/contributor/albums/{id}`，JSON `{"confirm":true,"expectedRevision":12,"reason":"重复收录，请保留更完整条目"}`，返回 **202**：`{album,history,request}`；此时 `album.deletedAt` 仍为空。
-- 旧 `PATCH action:"delete"` 也只创建待审申请，并要求原因和确认，不能直接移除。
+- 旧 `PATCH action:"delete"` 也只创建待审申请，并要求确认，理由可选，不能直接移除。
 - `GET /api/contributor/requests` 的 `albumRequests`：普通成员只得到本人提交，管理员得到全部。
 - `POST /api/contributor/requests`，JSON `{"action":"review-album-change","id":"申请 ID","decision":"approved","expectedRevision":1,"note":"核对后确认"}`。真实管理员审核；revision 是申请修订号，后台同时检查专辑修订和冻结快照。
 - 旧专辑 `PATCH approve/reject` 仅兼容转到当前内容消息审核，不能批准删除申请或越过消息；已移除资料的管理员恢复功能保留。
@@ -30,11 +30,13 @@
 
 追加 `album_change_requests`，保存类型、真实作者和用户名快照、原因、状态、申请及专辑修订号、前后快照、字段差异、时间、审核人和回复。部分唯一索引限制每专辑只有一个 pending。发布/删除、申请决定、历史及审计在同一事务提交，失败全部回滚；过期或重复批准拒绝执行。
 
-升级前的 pending-review 工作稿只补建 legacy 消息，不改变专辑修订、工作稿、公开快照或原状态。不捏造原因；旧投稿显示“旧版提交未填写原因”，不可直接批准，须拒绝后由提交者补充原因重提。升级前已完成的历史审核保留在原修订和审计记录，不虚构旧申请消息。
+升级前的 pending-review 工作稿只补建 legacy 消息，不改变专辑修订、工作稿、公开快照或原状态。不捏造原因；旧投稿和新投稿的空理由统一显示“无”，管理员可正常手动批准或拒绝。升级前已完成的历史审核保留在原修订和审计记录，不虚构旧申请消息。
 
 ## 验收与部署
 
-- 51 项测试、typecheck、build 通过。新增覆盖必填原因、真实用户归属、多字段差异、拒绝重提、持久化、旧投稿迁移、待审编辑与上传冻结、并发过期批准、原子回滚和直接删除绕过阻断。
+- 54 项测试、typecheck、build 通过。覆盖可选理由、空值持久化和审核、真实用户归属、多字段差异、拒绝重提、持久化、旧投稿迁移、待审编辑与上传冻结、并发过期批准、原子回滚和直接删除绕过阻断。
 - 使用新临时目录、本机 3418、测试密码 `album-review-http-test-password` 启动本地生产服务，再运行 `node scripts/verify-album-deletion.mjs`。仅操作隔离库，不调用真实 COS。报告在 `album-deletion-http-qa.json`。
-- 浏览器检查按钮位置、必填原因弹窗、消息里的用户/动作/原因/字段差异、批准/拒绝及 360px 无横向溢出。截图 `delete-request-position.jpg`、`delete-request-mobile.jpg`、`content-review-messages.jpg`。
-- 部署先备份生产 SQLite，快进代码，构建并重启系统级 naoko-archive.service。只做追加迁移，保留独立环境与资料目录，不开放公网。正式验收只读取消息和入口、提交必定被拒绝的空原因/无确认/匿名/跨站请求；不创建、批准或删除任何真实投稿。
+- 浏览器检查按钮位置、可留空的理由弹窗、消息里的用户/动作/原因/字段差异、批准/拒绝及 360px 无横向溢出。截图 `delete-request-position.jpg`、`delete-request-mobile.jpg`、`content-review-messages.jpg`。
+- 部署先备份生产 SQLite，快进代码，构建并重启系统级 naoko-archive.service。只做追加迁移，保留独立环境与资料目录，不开放公网。正式验收只读取消息和入口、提交必定被拒绝的无确认/匿名/跨站请求（空理由为有效申请，不可用于生产测试）；不创建、批准或删除任何真实投稿。
+
+2026-10-22 可选理由验收：`scripts/verify-optional-reasons.mjs` 仅针对本机 3416 的全新临时库（管理员测试密码 `optional-reason-test-password`）。已验证省略理由、纯空白、刷新读取、无理由内容/删除申请手动批准、2001 字拒绝、网站文字申请理由省略。浏览器实际留空提交，管理员看到“理由：无”且批准按钮可用；截图见 `docs/screenshots/optional-reason-review.jpg`。测试结果见 `docs/optional-reasons-http-qa.json`。不把任何测试资料同步到生产。
