@@ -1,0 +1,14 @@
+{
+  "environment": "isolated localhost production build; temporary SQLite database",
+  "verified": [
+    "administrator browser login",
+    "member and invitation management page renders",
+    "create album and add/save release version through browser",
+    "version image/audio upload controls and track selector render",
+    "member page desktop screenshot",
+    "member page 390x844 screenshot; document scrollWidth=390, no horizontal overflow"
+  ],
+  "browserFileChooser": "blocked by Chrome extension file-URL permission; no extension permissions changed",
+  "realMediaAlternative": "direct HTTP COS PNG then synthetic FLAC upload, signature protection, verification, association, private preview and reload all passed",
+  "productionDatabaseUsed": false
+}

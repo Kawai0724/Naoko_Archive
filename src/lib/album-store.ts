@@ -44,19 +44,19 @@ export class AlbumStore {
   publishedRaw(id:string):Album|null{const row=this.db.prepare('SELECT * FROM albums WHERE id=?').get(id) as Row|undefined;return row?.published_json&&!JSON.parse(row.working_json).deletedAt?JSON.parse(row.published_json):null;}
   revisions(id:string):AlbumRevision[]{return (this.db.prepare('SELECT * FROM revisions WHERE album_id=? ORDER BY id DESC').all(id) as {id:number;album_id:string;action:string;contributor:string;created_at:string;summary_json:string;snapshot_json:string}[]).map(r=>({id:r.id,albumId:r.album_id,action:r.action,contributor:r.contributor,createdAt:r.created_at,summary:JSON.parse(r.summary_json),snapshot:JSON.parse(r.snapshot_json)}));}
   private history(a:Album,action:string,summary:string[]){this.db.prepare('INSERT INTO revisions(album_id,action,contributor,created_at,summary_json,snapshot_json) VALUES(?,?,?,?,?,?)').run(a.id,action,a.contributor,a.updatedAt,JSON.stringify(summary),JSON.stringify(a));}
-  save(input:unknown,action:'draft'|'submit',id?:string,expected=0):Album{
+  save(input:unknown,action:'draft'|'submit',id?:string,expected=0,contributor=localContributor,beforePersist?:()=>void,afterPersist?:(a:Album)=>void):Album{
     this.db.exec('BEGIN IMMEDIATE');try{
-      const a=this.persist(input,action,id,expected);
+      beforePersist?.();const a=this.persist(input,action,id,expected,undefined,contributor);afterPersist?.(a);
       this.db.exec('COMMIT');return a;
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
-  private persist(input:unknown,action:'draft'|'submit',id?:string,expected=0,newId:string=randomUUID()):Album{
+  private persist(input:unknown,action:'draft'|'submit',id?:string,expected=0,newId:string=randomUUID(),contributor=localContributor):Album{
     const a=normalizeAlbum(input),before=id?this.get(id):null;
     if(id&&!before)throw new StoreError('记录不存在',404);
     if(before?.deletedAt)throw new StoreError('记录已移除，请先恢复');
     if((before?.revision??0)!==expected)throw new StoreError('记录已在另一页面修改，请重新载入后再保存',409);
     a.id=before?.id??newId;a.slug=before?.slug??`album-${a.id}`;
-    a.contributor=localContributor;a.createdAt=before?.createdAt??new Date().toISOString();a.updatedAt=new Date().toISOString();a.revision=(before?.revision??0)+1;
+    a.contributor=before?.contributor??contributor;a.createdAt=before?.createdAt??new Date().toISOString();a.updatedAt=new Date().toISOString();a.revision=(before?.revision??0)+1;
     a.status=action==='submit'?'pending-review':'draft';
     a.media.forEach(m=>{m.albumId=a.id;if(m.storageKey){const f=this.fileInfo(m.storageKey)??this.cloudMediaInfo(m.storageKey);if(!f||f.album_id!==a.id||(m.type==='audio')!==f.mime_type.startsWith('audio/'))throw new StoreError('媒体文件引用无效');m.mimeType=f.mime_type;m.size=f.size;if(m.type==='audio'){const facts=this.audioInfo(m.storageKey);if(!facts)throw new StoreError('音源文件引用无效');m.codec=facts.codec;m.bitDepth=facts.bit_depth;m.sampleRate=facts.sample_rate;m.channels=facts.channels;m.durationSeconds=facts.duration_seconds;m.rightsStatus='private';m.publicationConfirmed=false;}}});
     if(action==='submit'){const errors=submissionErrors(a);if(errors.length)throw new StoreError(errors.join('；'));}
@@ -125,15 +125,15 @@ export class AlbumStore {
       const a=this.get(id);if(!a)throw new StoreError('记录不存在',404);
       if(a.revision!==expected)throw new StoreError('记录已更新，请重新载入',409);
       const hasPublished=!!this.db.prepare('SELECT id FROM albums WHERE id=? AND published_json IS NOT NULL').get(id);
-      if((action==='approve'||action==='reject'||hasPublished&&(action==='delete'||action==='restore'))&&!admin)throw new StoreError('此操作需要以 npm run dev:admin 启动本机审核模式',403);
+      if((action==='approve'||action==='reject'||hasPublished&&(action==='delete'||action==='restore'))&&!admin)throw new StoreError('此操作需要管理员权限',403);
       if(action==='approve'||action==='reject'){if(a.status!=='pending-review'||a.deletedAt)throw new StoreError('只有待审核记录可以审核');}
       if(action==='approve'){const errors=submissionErrors(a);if(errors.length)throw new StoreError(errors.join('；'));a.status='published';}
-      if(action==='reject')a.status='draft';
+      if(action==='reject')a.status='rejected';
       if(action==='delete')a.deletedAt=new Date().toISOString();if(action==='restore')a.deletedAt=null;
       a.updatedAt=new Date().toISOString();a.revision++;a.changeNote=note||a.changeNote;
       this.db.prepare('UPDATE albums SET working_json=?,revision=? WHERE id=?').run(JSON.stringify(a),a.revision,id);
       if(action==='approve')this.db.prepare('UPDATE albums SET published_json=? WHERE id=?').run(JSON.stringify(a),id);
-      this.history(a,action,[{approve:'本机审核批准，更新本地公开快照',reject:'退回草稿修改',delete:'移除记录（保留历史，可恢复）',restore:'恢复记录'}[action],...(note?[note]:[])]);
+      this.history(a,action,[{approve:'管理员审核批准，更新公开快照',reject:'已拒绝，退回修改',delete:'移除记录（保留历史，可恢复）',restore:'恢复记录'}[action],...(note?[note]:[])]);
       this.db.exec('COMMIT');return a;
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }

@@ -1,4 +1,5 @@
 import 'server-only';
+import { connection } from 'next/server';
 import { releases } from '@/data/releases';
 import { albumStore,archiveDataEnabled } from './album-store';
 import { releaseToAlbum, publicAlbum } from './albums';
@@ -6,6 +7,7 @@ import { localPublicContext } from './local-access';
 import { editionCover } from './edition-hierarchy';
 import { withLocalCoverPreviews,type CatalogueAlbum } from './local-cover-preview';
 export async function publicAlbums():Promise<CatalogueAlbum[]>{
+  await connection();
   if(await localPublicContext()){const store=albumStore();return store.published().map(a=>withLocalCoverPreviews(a,store.get(a.id)));}
   if(archiveDataEnabled())return albumStore().published();
   return releases.map(r=>publicAlbum(releaseToAlbum(r,'')));

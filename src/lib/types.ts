@@ -26,7 +26,7 @@ export interface Video extends ArchiveSource {
 }
 
 // Canonical editable model; Release above is the legacy catalog view model.
-export type EntryStatus = 'draft' | 'pending-review' | 'published';
+export type EntryStatus = 'draft' | 'pending-review' | 'published' | 'rejected';
 export type PartialDate = { value: string; precision: 'year' | 'month' | 'day' } | null;
 export interface Credit { id: string; name: string }
 export interface AlbumTrack {

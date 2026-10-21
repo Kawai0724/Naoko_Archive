@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-21T11:06:33.324Z",
+  "isolatedDatabase": true,
+  "cosTest": true,
+  "checks": [
+    "anonymous access rejected; administrator login and HttpOnly cookie",
+    "two invited accounts; invite replay rejected",
+    "server-side album, page, history, admin and CSRF access isolation",
+    "real image: COS PUT, overwrite rejection, verify, SQLite association, owner preview, reload",
+    "real FLAC: direct COS upload, metadata validation, track association, admin-only access",
+    "draft → pending → rejected → resubmitted → approved; public page refresh",
+    "logout invalidates database session"
+  ]
+}

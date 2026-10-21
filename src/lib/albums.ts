@@ -1,5 +1,5 @@
 import type { Album, AlbumTrack, AlbumEdition, AlbumMedia, PartialDate, PublicAlbum, Release, RightsStatus, Credit, PublicTrack } from './types';
-export const statusLabels = { draft:'草稿', 'pending-review':'待审核', published:'已发布' };
+export const statusLabels = { draft:'草稿', 'pending-review':'待审核', published:'已通过', rejected:'已拒绝' };
 export const albumTypes = { album:'Album / 专辑',single:'Single / 单曲',ep:'EP',compilation:'Compilation / 合集',live:'Live / 现场',other:'Other / 其他' };
 export const localContributor='fly-me-to-1980';
 export const uid=()=>crypto.randomUUID();

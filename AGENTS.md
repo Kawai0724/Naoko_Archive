@@ -1,3 +1,5 @@
+2026-10-21 Contributor V2：用户已授权先本地隔离测试，再部署腾讯云。以 docs/contributor-v2.md 为准，覆盖旧版仅本地/模拟角色限制。账号仅管理员邀请，管理员 fly-me-to-1980；所有 Contributor 页面/API 必须使用真实数据库会话和 ContributorStore 权限边界，不得恢复开发模式认证绕过。生产资料库只作追加迁移，禁止复制本地测试资料覆盖。COS 保持私有、pending/* 最小权限；不开放公网端口，后续采用 Tailscale HTTPS 私人网络。公开页面视觉保持不变。
+
 2026-10-21 Contributor Albums V1：以 `docs/contributor-albums-brief.md` 和 `docs/contributor-albums-v1.md` 为准。本专项允许本地 SQLite、唱片管理和受保护的本机审核，覆盖早期“不做数据库/后台”限制。只在 `/Users/xiaowenli/Projects/naoko-archive` 本地实现；不得部署 Sites 或同步公网副本。保留照片开屏、ENTER、`/archive` 纯排版、黑色 About/Credits 与写真/影像内容。新增本地 Contributor 默认署名为 `fly-me-to-1980`，全站发起人姓名仍按下面的最新署名。私人数据位于忽略提交的 `data/`，不可提交、复制到 public 或纳入生产包；生产编辑/API 必须关闭，未来公网使用先完成真实服务端鉴权。
 
 2026-10-21 最新署名：社区元信息保持“发起人 / INITIATOR”标签，姓名改为 fly_me_to_1980 与 Sentimental Velvet Rain，分两行显示。覆盖先前的 Xiaowen Li 与 fly-me-to-1980；保留下划线、大小写和空格原样。

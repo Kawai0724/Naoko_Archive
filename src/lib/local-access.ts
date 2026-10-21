@@ -1,23 +1,21 @@
-import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { cookies,headers } from 'next/headers';
-import { notFound,redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { StoreError } from './album-store';
-import { isLoopback,localAllowed,sameLocalOrigin } from './local-policy';
-import { contributorCookie,validContributorSession } from './contributor-auth';
+import { contributorCookie,identityStore,requestToken,requireSameOrigin } from './contributor-auth';
+import { localAllowed } from './local-policy';
 export { localAllowed } from './local-policy';
-
-const state=globalThis as typeof globalThis & { archiveEditorToken?:string };
-export function editorToken(){return state.archiveEditorToken??=randomBytes(32).toString('hex');}
-export const adminEnabled=()=>process.env.NODE_ENV==='development'&&process.env.ARCHIVE_LOCAL_ADMIN==='1';
-export async function localPage(){const h=await headers();if(process.env.NODE_ENV==='development'&&localAllowed(h.get('host')))return {token:editorToken(),admin:adminEnabled()};const session=(await cookies()).get(contributorCookie)?.value;if(!validContributorSession(session))redirect('/contributor/login');return {token:'',admin:true};}
-export async function localPublicContext(){const h=await headers();return process.env.NODE_ENV==='development'&&localAllowed(h.get('host'));}
+export async function currentContributor(){return identityStore().session((await cookies()).get(contributorCookie)?.value);}
+export async function localPage(){const user=await currentContributor();if(!user)redirect('/contributor/login');return {token:'',admin:user.role==='admin',user};}
+export async function localPublicContext(){return false;}
 export async function guardApi(req:Request){
-  if(process.env.NODE_ENV!=='development'){if(!validContributorSession(req.headers.get('cookie')?.match(new RegExp(`(?:^|; )${contributorCookie}=([^;]+)`))?.[1]))throw new StoreError('需要管理员登录',401);return;}
-  const u=new URL(req.url);if(!localAllowed(req.headers.get('host'))||!isLoopback(u.host))throw new StoreError('本地开发专用接口',404);
-  // Next may normalize request.url to localhost; compare with the actual validated Host.
-  if(!sameLocalOrigin(req.headers.get('host'),u.protocol,req.headers.get('origin')))throw new StoreError('来源不被允许',403);
-  const token=req.headers.get('x-local-editor-token')??'',expected=editorToken();
-  if(Buffer.byteLength(token)!==Buffer.byteLength(expected)||!timingSafeEqual(Buffer.from(token),Buffer.from(expected)))throw new StoreError('请从本机 Contributor 页面打开编辑器',403);
+  if(!['GET','HEAD','OPTIONS'].includes(req.method))requireSameOrigin(req);
+  const user=identityStore().session(requestToken(req));if(!user)throw new StoreError('请先登录',401);return user;
 }
-export async function jsonBody(req:Request){const body=await req.text();if(body.length>4*1024*1024)throw new StoreError('表单超过 4 MB',413);try{return JSON.parse(body);}catch{throw new StoreError('表单格式错误');}}
-export function apiError(e:unknown){return Response.json({error:e instanceof Error?e.message:'操作失败'}, {status:e instanceof StoreError?e.status:400,headers:{'Cache-Control':'no-store'}});}
+export async function jsonBody(req:Request){
+  if(!req.headers.get('content-type')?.startsWith('application/json'))throw new StoreError('请使用 JSON 请求');
+  const reader=req.body?.getReader();if(!reader)throw new StoreError('缺少请求内容');
+  const chunks:Uint8Array[]=[];let size=0;
+  while(true){const r=await reader.read();if(r.done)break;size+=r.value.length;if(size>4*1024*1024){await reader.cancel();throw new StoreError('表单超过 4 MB',413);}chunks.push(r.value);}
+  try{return JSON.parse(Buffer.concat(chunks).toString());}catch{throw new StoreError('表单格式错误');}
+}
+export function apiError(e:unknown){return Response.json({error:e instanceof StoreError?e.message:'操作失败，请重试'}, {status:e instanceof StoreError?e.status:500,headers:{'Cache-Control':'no-store'}});}

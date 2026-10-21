@@ -1,11 +1,13 @@
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
-import { albumStore,StoreError } from '@/lib/album-store';
+import { StoreError } from '@/lib/album-store';
+import { contributorStore } from '@/lib/contributor-store';
+import { privateReadUrl } from '@/lib/cos-storage';
 import { guardApi,apiError } from '@/lib/local-access';
 export const runtime='nodejs';
-export async function GET(req:Request,{params}:{params:Promise<{key:string}>}){
+export async function GET(req:Request,{params}:{params:Promise<{key:string[]}>}){
   try{
-    guardApi(req);const {key}=await params,f=albumStore().audioFile(key),range=req.headers.get('range');
+    const scope=contributorStore(await guardApi(req)),{key:parts}=await params,key=parts.join('/');scope.media(key,true);if(key.startsWith('pending/'))return new Response(null,{status:302,headers:{Location:privateReadUrl(key),'Cache-Control':'no-store'}});const f=scope.store.audioFile(key),range=req.headers.get('range');
     let start=0,end=f.size-1;
     if(range){
       const m=/^bytes=(\d*)-(\d*)$/.exec(range);

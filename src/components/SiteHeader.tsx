@@ -10,7 +10,7 @@ export const navigation = [['/archive','主页'],['/contributor','参与共建']
 export default function SiteHeader({localContributor=false,albums,directoryEntries}:{localContributor?:boolean;albums?:SearchAlbum[];directoryEntries?:DirectoryEntry[]}) {
   const pathname=usePathname();
   const [searchOpen,setSearchOpen]=useState(false);
-  const links=navigation.map(([href,label])=>[href==='/contributor'&&!localContributor?'/about#contribute':href,label]);
+  const links=navigation;
   return <header className="site-header">
     <div className="header-main page-shell">
       <Link className="header-brand" href="/archive" aria-label="NAOKO ARCHIVE 档案主页"><span>NAOKO <i>ARCHIVE</i></span><small>河合奈保子数字档案馆</small></Link>

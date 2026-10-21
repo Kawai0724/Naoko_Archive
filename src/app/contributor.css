@@ -53,6 +53,7 @@
   .contributor-editions .edition-meta-list dd{font-size:14px}
 }
 
+.access-form{max-width:440px;display:grid;gap:24px;margin-top:40px}.contributor-account{display:flex;gap:16px;align-items:center;overflow-wrap:anywhere}.contributor-account button{border-bottom:1px solid var(--line);cursor:pointer}.contributor-header{flex-wrap:wrap}.contributor-header nav{flex-wrap:wrap}.invite-result{max-width:900px}.member-row{display:flex;align-items:center;gap:24px;padding:20px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.member-row>:first-child{flex:1;min-width:0;font-weight:500}.member-row span{font-size:13px;color:var(--muted)}.review-note{max-width:680px;margin-top:24px}.review-note p{white-space:pre-wrap;overflow-wrap:anywhere}
 .edition-hub-heading-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .edition-hub-heading-actions>.editor-button{min-width:112px;white-space:nowrap}
 @media(max-width:768px){
