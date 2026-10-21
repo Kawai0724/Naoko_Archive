@@ -35,6 +35,7 @@ export class ContributorUploads{
     // AlbumStore.save owns the transaction; its precommit callback atomically
     // registers the verified file and consumes this exact upload ticket.
     return scope.store.save(a,'draft',a.id,a.revision,scope.user.username,()=>{
+      scope.edit(a.id);
       db.prepare('INSERT INTO media_files VALUES(?,?,?,?)').run(t.object_key,a.id,t.mime,t.size);
       if(facts)db.prepare('INSERT INTO audio_files VALUES(?,?,?,?,?,?)').run(t.object_key,facts.codec,facts.bitDepth,facts.sampleRate,facts.channels,facts.durationSeconds);
       db.prepare("UPDATE contributor_uploads SET status='completed' WHERE id=? AND status='authorized'").run(t.id);

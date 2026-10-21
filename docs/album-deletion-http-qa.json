@@ -1,9 +1,12 @@
 {
-  "testedAt": "2026-10-21T15:41:32.691Z",
+  "testedAt": "2026-10-21T16:01:17.083Z",
   "isolatedDatabase": true,
   "checks": [
-    "DELETE requires a real session, same-origin, explicit confirmation and current revision; other users cannot delete; own unpublished album deletes with both versions retained and restores",
-    "only administrator can remove reviewed/published album; public album and all version routes disappear; upload to removed album denied; restore preserves versions, tracks and published content"
+    "content submissions require reason; actual submitter and field changes persist; author isolation, administrator edit/upload freeze and contributor self-approval protection hold",
+    "DELETE and legacy PATCH create reasoned pending messages; published content stays visible until approval; reject preserves it, approve hides every version, duplicate/stale/cross-origin reviews fail and restore preserves content",
+    "message feed shows immutable before/after edits, real submitting administrator instead of original album author, reasons, decision history and exact delete-button order; unreviewed text stays unpublished"
   ],
-  "browserAlbumId": "b602d8dd-4fcd-4c7e-987c-59bd6a9056f2"
+  "browserHeaderAlbum": "5f7e7a59-987b-4ca5-9898-662853441c8f",
+  "browserContentRequest": "bc016d22-b29c-4c29-ab86-9016bc286b0a",
+  "browserDeleteRequest": "9c2dbd23-0d99-4784-8a89-f18e8d3d332e"
 }

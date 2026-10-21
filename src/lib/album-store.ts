@@ -120,8 +120,9 @@ export class AlbumStore {
     }catch(e){this.db.exec('ROLLBACK');try{unlinkSync(moved?destination:prepared.temporaryPath);}catch{}throw e;}
   }
   audioFile(key:string){const info=this.fileInfo(key);if(!info?.mime_type.startsWith('audio/')||!this.audioInfo(key))throw new StoreError('音源不存在',404);const filePath=path.join(this.directory,'private-media',key);try{if(statSync(filePath).size!==info.size)throw new Error();}catch{throw new StoreError('音源文件已缺失或被改动',404);}return {path:filePath,mime:info.mime_type,size:info.size};}
-  transition(id:string,action:'approve'|'reject'|'delete'|'restore',expected:number,admin:boolean,note=''):Album{
+  transition(id:string,action:'approve'|'reject'|'delete'|'restore',expected:number,admin:boolean,note='',beforeTransition?:()=>void,afterTransition?:()=>void):Album{
     this.db.exec('BEGIN IMMEDIATE');try{
+      beforeTransition?.();
       const a=this.get(id);if(!a)throw new StoreError('记录不存在',404);
       if(a.revision!==expected)throw new StoreError('记录已更新，请重新载入',409);
       const hasPublished=!!this.db.prepare('SELECT id FROM albums WHERE id=? AND published_json IS NOT NULL').get(id);
@@ -134,6 +135,7 @@ export class AlbumStore {
       this.db.prepare('UPDATE albums SET working_json=?,revision=? WHERE id=?').run(JSON.stringify(a),a.revision,id);
       if(action==='approve')this.db.prepare('UPDATE albums SET published_json=? WHERE id=?').run(JSON.stringify(a),id);
       this.history(a,action,[{approve:'管理员审核批准，更新公开快照',reject:'已拒绝，退回修改',delete:'移除记录（保留历史，可恢复）',restore:'恢复记录'}[action],...(note?[note]:[])]);
+      afterTransition?.();
       this.db.exec('COMMIT');return a;
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }

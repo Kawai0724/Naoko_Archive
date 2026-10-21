@@ -1,5 +1,5 @@
 import { localPage } from '@/lib/local-access';
 import { contributorStore } from '@/lib/contributor-store';
-import AlbumList from '@/components/contributor/AlbumList';
+import ContentReviewMessages from '@/components/contributor/ContentReviewMessages';
 export const metadata={title:'提交与审核记录'};
-export default async function SubmissionsPage(){const access=await localPage(),store=contributorStore(access.user),albums=store.list();return <AlbumList initial={albums} deletableIds={albums.filter(a=>store.canDelete(a.id)).map(a=>a.id)} {...access} submissions/>;}
+export default async function SubmissionsPage(){const {user}=await localPage(),store=contributorStore(user);return <main className="contributor-home"><h1>提交记录</h1><ContentReviewMessages messages={store.requests.list(user)}/></main>;}

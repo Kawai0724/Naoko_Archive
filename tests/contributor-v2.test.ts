@@ -43,14 +43,14 @@ test('ownership is server controlled; draft, review, reject, resubmit, approve a
   let album=a.save(input,'draft');assert.equal(album.contributor,alice.user.username);assert.ok(!b.list().some(x=>x.id===album.id));
   for(const action of [()=>b.get(album.id),()=>b.revisions(album.id),()=>b.save(album,'draft',album.id,album.revision),()=>b.transition(album.id,'delete',album.revision)])assert.throws(action,e=>e instanceof StoreError&&e.status===404);
   assert.throws(()=>a.get('legacy-scarlet'),/不存在/);assert.equal(store.publishedRaw(album.id),null);
-  album=a.save(album,'submit',album.id,album.revision);assert.equal(album.status,'pending-review');assert.throws(()=>a.save(album,'draft',album.id,album.revision),e=>e instanceof StoreError&&e.status===409);
+  album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');assert.equal(album.status,'pending-review');assert.throws(()=>a.save(album,'draft',album.id,album.revision),e=>e instanceof StoreError&&e.status===409);
   assert.throws(()=>a.transition(album.id,'approve',album.revision),e=>e instanceof StoreError&&e.status===403);assert.throws(()=>a.transition(album.id,'reject',album.revision),/管理员/);
   album=s.transition(album.id,'reject',album.revision,'补充版本名称');assert.equal(album.status,'rejected');assert.equal(album.changeNote,'补充版本名称');
-  album=a.save(album,'submit',album.id,album.revision);album=s.transition(album.id,'approve',album.revision);assert.equal(album.status,'published');assert.equal(store.publishedRaw(album.id)?.title,input.title);
+  album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');album=s.transition(album.id,'approve',album.revision);assert.equal(album.status,'published');assert.equal(store.publishedRaw(album.id)?.title,input.title);
   album=a.save({...album,title:'Changed draft'},'draft',album.id,album.revision);assert.equal(store.publishedRaw(album.id)?.title,input.title);
-  assert.throws(()=>a.transition(album.id,'delete',album.revision),/管理员/);assert.throws(()=>a.save(album,'draft',album.id,album.revision-1),e=>e instanceof StoreError&&e.status===409);
+  assert.throws(()=>a.transition(album.id,'delete',album.revision),/提交审核/);assert.throws(()=>a.save(album,'draft',album.id,album.revision-1),e=>e instanceof StoreError&&e.status===409);
   assert.deepEqual(album.editions[0].tracks[0].lyricists,[]);assert.equal(album.editions[0].tracks[0].lyricsText,null);
-  let ownDraft=a.save({...emptyAlbum(),title:'Recoverable draft'},'draft');ownDraft=a.transition(ownDraft.id,'delete',ownDraft.revision);assert.ok(ownDraft.deletedAt);ownDraft=a.transition(ownDraft.id,'restore',ownDraft.revision);assert.equal(ownDraft.deletedAt,null);
+  let ownDraft=a.save({...emptyAlbum(),title:'Recoverable draft'},'draft');const deletion=a.requests.requestDelete(a.user,ownDraft.id,ownDraft.revision,'重复草稿');ownDraft=s.requests.review(s.user,deletion.id,'approved',deletion.revision).album;assert.ok(ownDraft.deletedAt);ownDraft=a.transition(ownDraft.id,'restore',ownDraft.revision);assert.equal(ownDraft.deletedAt,null);
 });
 test('COS tickets bind user, album, version, track, type, replacement and revision; complete is atomic and files stay private',t=>{
   const {a,b,s,store}=setup(t),edition=emptyEdition(),track=emptyTrack(1);track.title='Existing';edition.tracks=[track];let album=a.save({...emptyAlbum(),title:'Cloud',editions:[edition]},'draft');
@@ -66,7 +66,7 @@ test('COS tickets bind user, album, version, track, type, replacement and revisi
   assert.throws(()=>uploads.create({...params(),kind:'audio',name:'test.flac',target:'missing'}),/已添加的曲目/);
   const audio=uploads.create({...params(),kind:'audio',name:'test.flac',target:track.id});album=uploads.complete(audio.id,{codec:'FLAC',extension:'flac',mimeType:'audio/flac',size:64,bitDepth:16,sampleRate:44100,channels:2,durationSeconds:1});
   const m=album.media.at(-1)!;assert.equal(m.relatedTrackId,track.id);assert.equal(m.relatedEditionId,edition.id);assert.equal(m.rightsStatus,'private');assert.throws(()=>a.media(m.storageKey!,true),/仅管理员/);assert.equal(s.media(m.storageKey!,true).mime_type,'audio/flac');
-  album=a.save(album,'submit',album.id,album.revision);assert.throws(()=>uploads.create(params()),/正在审核/);s.transition(album.id,'approve',album.revision);assert.equal(store.published().find(x=>x.id===album.id)?.media.length,0);
+  album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');assert.throws(()=>uploads.create(params()),/正在审核/);s.transition(album.id,'approve',album.revision);assert.equal(store.published().find(x=>x.id===album.id)?.media.length,0);
 });
 test('COS completion failure rolls back registration and ticket consumption',t=>{
   const {a}=setup(t),edition=emptyEdition();let album=a.save({...emptyAlbum(),title:'Rollback',editions:[edition]},'draft'),uploads=new ContributorUploads(a);
