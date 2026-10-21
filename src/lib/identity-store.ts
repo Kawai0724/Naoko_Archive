@@ -18,6 +18,8 @@ function matchesPassword(password:string,hash:string){
 }
 const publicUser=(u:ContributorUser):ContributorUser=>({id:u.id,username:u.username,role:u.role,accountStatus:u.accountStatus});
 export type RegistrationApplication={user_id:string;username:string;reason:string;status:AccountStatus;admin_note:string;created_at:number;reviewed_at:number|null;revision:number};
+export type PublicMember={username:string;role:'admin'|'contributor';created_at:number};
+export type AdminApplication={user_id:string;username:string;reason:string;status:'pending'|'approved'|'rejected';admin_note:string;created_at:number;reviewed_at:number|null;revision:number};
 export class IdentityStore{
   constructor(readonly db:DatabaseSync){
     db.exec(`CREATE TABLE IF NOT EXISTS contributor_users(id TEXT PRIMARY KEY,username TEXT NOT NULL COLLATE NOCASE UNIQUE,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','contributor')),disabled INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
@@ -30,6 +32,8 @@ export class IdentityStore{
       const columns=db.prepare('PRAGMA table_info(contributor_users)').all() as {name:string}[];
       if(!columns.some(c=>c.name==='approval_status'))db.exec("ALTER TABLE contributor_users ADD COLUMN approval_status TEXT NOT NULL DEFAULT 'approved' CHECK(approval_status IN ('pending','approved','rejected'))");
       db.exec(`CREATE TABLE IF NOT EXISTS contributor_applications(user_id TEXT PRIMARY KEY REFERENCES contributor_users(id),reason TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),admin_note TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,reviewed_at INTEGER,reviewer_id TEXT,revision INTEGER NOT NULL DEFAULT 1);`);
+      if(!columns.some(c=>c.name==='closed_at'))db.exec('ALTER TABLE contributor_users ADD COLUMN closed_at INTEGER');
+      db.exec(`CREATE TABLE IF NOT EXISTS contributor_admin_applications(user_id TEXT PRIMARY KEY REFERENCES contributor_users(id),reason TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),admin_note TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,reviewed_at INTEGER,reviewer_id TEXT,revision INTEGER NOT NULL DEFAULT 1);`);
       db.exec('COMMIT');
     }catch(e){db.exec('ROLLBACK');throw e;}
   }
@@ -93,13 +97,70 @@ export class IdentityStore{
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
   adminData(user:ContributorUser){this.requireAdmin(user);return {
-    users:this.db.prepare('SELECT id,username,role,disabled,created_at,approval_status FROM contributor_users ORDER BY created_at').all().map(row=>({...row})),
+    users:this.db.prepare('SELECT id,username,role,disabled,created_at,approval_status,closed_at FROM contributor_users ORDER BY created_at').all().map(row=>({...row})),
     invites:this.db.prepare('SELECT id,expires_at,used_by,revoked FROM contributor_invites ORDER BY expires_at DESC LIMIT 100').all().map(row=>({...row}))
   };}
   revoke(user:ContributorUser,id:string){this.requireAdmin(user);this.db.prepare('UPDATE contributor_invites SET revoked=1 WHERE id=? AND used_by IS NULL').run(id);this.audit(user,'revoke-invite',id);}
   disable(user:ContributorUser,id:string,disabled:boolean){
-    this.requireAdmin(user);this.db.prepare("UPDATE contributor_users SET disabled=? WHERE id=? AND role='contributor'").run(disabled?1:0,id);
-    if(disabled)this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(id);this.audit(user,disabled?'disable-user':'enable-user',id);
+    this.db.exec('BEGIN IMMEDIATE');try{
+      this.requireAdmin(user);
+      const target=this.db.prepare("SELECT role,closed_at FROM contributor_users WHERE id=?").get(id) as {role:string;closed_at:number|null}|undefined;
+      if(!target)throw new StoreError('账号不存在',404);
+      if(target.closed_at)throw new StoreError('账号已注销，不能重新启用',409);
+      if(target.role!=='contributor')throw new StoreError('不能通过停用操作修改管理员',403);
+      this.db.prepare('UPDATE contributor_users SET disabled=? WHERE id=?').run(disabled?1:0,id);
+      if(disabled)this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(id);
+      this.audit(user,disabled?'disable-user':'enable-user',id);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  publicMembers():PublicMember[]{return this.db.prepare("SELECT username,role,created_at FROM contributor_users WHERE disabled=0 AND approval_status='approved' AND closed_at IS NULL ORDER BY CASE role WHEN 'admin' THEN 0 ELSE 1 END,created_at,username").all().map(row=>({...row})) as PublicMember[];}
+  private requireActive(user:ContributorUser){
+    const row=this.db.prepare("SELECT role FROM contributor_users WHERE id=? AND disabled=0 AND approval_status='approved' AND closed_at IS NULL").get(user.id) as {role:string}|undefined;
+    if(!row||row.role!==user.role)throw new StoreError('账号无权执行此操作，请重新登录',403);
+    return row;
+  }
+  adminApplication(user:ContributorUser){this.requireActive(user);const row=this.db.prepare('SELECT a.*,u.username FROM contributor_admin_applications a JOIN contributor_users u ON u.id=a.user_id WHERE a.user_id=?').get(user.id) as AdminApplication|undefined;return row?{...row}:null;}
+  adminApplications(admin:ContributorUser){this.requireAdmin(admin);return this.db.prepare('SELECT a.*,u.username FROM contributor_admin_applications a JOIN contributor_users u ON u.id=a.user_id ORDER BY a.created_at DESC').all().map(row=>({...row})) as AdminApplication[];}
+  requestAdmin(user:ContributorUser,reason:string,expected:number){
+    if(typeof reason!=='string'||reason.trim().length<1||reason.length>2000||!Number.isSafeInteger(expected)||expected<0)throw new StoreError('请填写申请说明（1–2000 字）及有效修订号');
+    this.db.exec('BEGIN IMMEDIATE');try{
+      const current=this.requireActive(user);if(current.role==='admin')throw new StoreError('你已经是管理员',409);
+      const previous=this.adminApplication(user);
+      if((previous?.revision??0)!==expected||previous?.status==='pending')throw new StoreError('申请已更新或正在审核，请刷新后查看',409);
+      if(previous?.status==='approved')throw new StoreError('申请已通过',409);
+      this.db.prepare("INSERT INTO contributor_admin_applications(user_id,reason,status,created_at) VALUES(?,?,'pending',?) ON CONFLICT(user_id) DO UPDATE SET reason=excluded.reason,status='pending',admin_note='',created_at=excluded.created_at,reviewed_at=NULL,reviewer_id=NULL,revision=revision+1").run(user.id,reason.trim(),Date.now());
+      this.audit(user,'request-admin',user.id);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  reviewAdminApplication(admin:ContributorUser,userId:string,decision:'approved'|'rejected',expected:number,note:string){
+    if(!['approved','rejected'].includes(decision)||!Number.isSafeInteger(expected)||typeof note!=='string'||note.length>2000)throw new StoreError('审核信息无效');
+    this.db.exec('BEGIN IMMEDIATE');try{
+      this.requireAdmin(admin);if(admin.id===userId)throw new StoreError('不能审批自己的管理员申请',403);
+      const request=this.db.prepare('SELECT status,revision FROM contributor_admin_applications WHERE user_id=?').get(userId) as {status:string;revision:number}|undefined;
+      if(!request)throw new StoreError('申请不存在',404);
+      if(request.status!=='pending'||request.revision!==expected)throw new StoreError('申请已更新，请刷新后审核',409);
+      const target=this.db.prepare('SELECT role,disabled,approval_status,closed_at FROM contributor_users WHERE id=?').get(userId) as {role:string;disabled:number;approval_status:string;closed_at:number|null}|undefined;
+      if(!target||target.disabled||target.closed_at||target.approval_status!=='approved'||target.role!=='contributor')throw new StoreError('申请人当前状态不允许升级',409);
+      if(decision==='approved')this.db.prepare("UPDATE contributor_users SET role='admin' WHERE id=?").run(userId);
+      this.db.prepare('UPDATE contributor_admin_applications SET status=?,admin_note=?,reviewed_at=?,reviewer_id=?,revision=revision+1 WHERE user_id=?').run(decision,note.trim(),Date.now(),admin.id,userId);
+      this.audit(admin,'admin-application-'+decision,userId);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  closeAccount(admin:ContributorUser,userId:string,confirmation:string){
+    this.db.exec('BEGIN IMMEDIATE');try{
+      this.requireAdmin(admin);
+      const target=this.db.prepare('SELECT username,role,closed_at FROM contributor_users WHERE id=?').get(userId) as {username:string;role:string;closed_at:number|null}|undefined;
+      if(!target)throw new StoreError('账号不存在',404);
+      if(confirmation!==target.username)throw new StoreError('请输入正确的用户名确认注销');
+      if(target.closed_at)throw new StoreError('账号已注销',409);
+      if(target.role==='admin'&&(this.db.prepare("SELECT COUNT(*) AS count FROM contributor_users WHERE role='admin' AND disabled=0 AND approval_status='approved' AND closed_at IS NULL").get() as {count:number}).count<=1)throw new StoreError('不能注销最后一位管理员',409);
+      if(admin.id===userId)throw new StoreError('不能注销自己的账号',403);
+      const now=Date.now();this.db.prepare('UPDATE contributor_users SET disabled=1,closed_at=? WHERE id=?').run(now,userId);
+      this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(userId);
+      this.db.prepare('UPDATE contributor_invites SET revoked=1 WHERE created_by=? AND used_by IS NULL').run(userId);
+      for(const table of ['contributor_applications','contributor_admin_applications'])this.db.prepare(`UPDATE ${table} SET status='rejected',admin_note='账号已由管理员注销',reviewed_at=?,reviewer_id=?,revision=revision+1 WHERE user_id=? AND status='pending'`).run(now,admin.id,userId);
+      this.audit(admin,'close-account',userId);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
   register(username:string,password:string,reason:string){
     this.limit('registration:total',50,60*60*1000);
@@ -121,6 +182,8 @@ export class IdentityStore{
   reviewRegistration(admin:ContributorUser,userId:string,decision:'approved'|'rejected',expected:number,note:string){
     this.requireAdmin(admin);if(!['approved','rejected'].includes(decision)||!Number.isSafeInteger(expected)||note.length>2000)throw new StoreError('审核信息无效');
     this.db.exec('BEGIN IMMEDIATE');try{
+      const target=this.db.prepare('SELECT disabled,closed_at FROM contributor_users WHERE id=?').get(userId) as {disabled:number;closed_at:number|null}|undefined;
+      if(!target||target.disabled||target.closed_at)throw new StoreError('账号已停用或注销',409);
       const r=this.db.prepare('SELECT * FROM contributor_applications WHERE user_id=?').get(userId) as RegistrationApplication|undefined;
       if(!r)throw new StoreError('申请不存在',404);
       if(r.status!=='pending'||r.revision!==expected)throw new StoreError('申请已更新，请刷新后再审核',409);

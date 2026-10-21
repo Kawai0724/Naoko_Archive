@@ -16,6 +16,7 @@ const sections: DirectoryEntry[] = [
   { href: '/videos', label: '影像档案', parent: root.href },
   { href: '/timeline', label: '时间线', parent: root.href },
   { href: '/about', label: '关于', parent: root.href },
+  { href: '/members', label: '社区成员', parent: root.href },
   ...photobooks.map(r => ({ href: `/photobooks/${r.slug}`, label: r.title, parent: '/photobooks' })),
   ...videos.map(r => ({ href: `/videos/${r.slug}`, label: r.title, parent: '/videos' })),
 ];
