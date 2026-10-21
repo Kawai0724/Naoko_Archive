@@ -1,4 +1,6 @@
 .directory-navigation{display:flex;align-items:center;gap:28px;min-height:58px;border-bottom:1px solid var(--line)}
+.directory-back{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;padding:6px 0;font-size:12px;color:var(--muted);border-bottom:1px solid transparent;transition:color .18s,border-color .18s}
+.directory-back:hover,.directory-back:focus-visible{color:var(--forest);border-color:var(--forest)}
 .directory-breadcrumbs{min-width:0;font-family:var(--serif);font-size:15px;line-height:1.6}
 .directory-breadcrumbs ol{display:flex;align-items:center;flex-wrap:wrap;gap:5px 0;list-style:none;margin:0;padding:0}
 .directory-breadcrumbs li{display:inline-flex;align-items:center;gap:10px;min-width:0;max-width:100%;padding:3px 0}
@@ -11,6 +13,7 @@
 .site-header:has(.directory-navigation)~#main-content,.about-body>section[id]{scroll-margin-top:190px}
 @media(max-width:700px){
   .directory-navigation{gap:16px;min-height:58px;padding-top:6px;padding-bottom:6px}
+  .directory-back span{font-size:11px}
   .directory-breadcrumbs{font-size:14px;flex:1}
   .directory-breadcrumbs li{gap:6px}
   .directory-breadcrumbs li+li{margin-left:6px}

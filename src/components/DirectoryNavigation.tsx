@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
+import { usePathname,useRouter } from 'next/navigation';
+import { ChevronLeft,ChevronRight } from 'lucide-react';
 import { photobooks } from '@/data/photobooks';
 import { videos } from '@/data/videos';
 import '@/app/directory-navigation.css';
@@ -21,6 +21,7 @@ const sections: DirectoryEntry[] = [
 ];
 
 export default function DirectoryNavigation({ entries = [] }: { entries?: DirectoryEntry[] }) {
+  const router=useRouter();
   const pathname = usePathname().replace(/\/$/, '') || '/';
   const all = [...sections, ...entries];
   const current = all.find(entry => entry.href === pathname);
@@ -32,6 +33,7 @@ export default function DirectoryNavigation({ entries = [] }: { entries?: Direct
     entry = all.find(item => item.href === entry!.parent);
   }
   return <div className="directory-navigation page-shell">
+    <button className="directory-back" type="button" onClick={()=>window.history.length>1?router.back():router.push('/archive')} aria-label="返回上一页"><ChevronLeft size={15} strokeWidth={1.35}/><span>返回</span></button>
     <nav className="directory-breadcrumbs" aria-label="当前位置">
       <ol>{trail.map((item, i) => <li key={item.href}>
         {i > 0 && <ChevronRight size={13} strokeWidth={1.2} aria-hidden="true" />}
