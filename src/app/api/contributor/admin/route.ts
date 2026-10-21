@@ -7,6 +7,5 @@ export async function POST(req:Request){try{
   if(b.action==='invite'){const invite=s.invite(user);return Response.json({invite},{status:201,headers:{'Cache-Control':'no-store'}});}
   if(b.action==='revoke')s.revoke(user,String(b.id));
   else if(b.action==='disable'&&typeof b.disabled==='boolean')s.disable(user,String(b.id),b.disabled);
-  else if(b.action==='close-user')s.closeAccount(user,String(b.id),String(b.confirmation??''));
   else throw new StoreError('未知操作');return Response.json({ok:true});
 }catch(e){return apiError(e);}}

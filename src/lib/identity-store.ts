@@ -146,20 +146,19 @@ export class IdentityStore{
       this.audit(admin,'admin-application-'+decision,userId);this.db.exec('COMMIT');
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
-  closeAccount(admin:ContributorUser,userId:string,confirmation:string){
+  closeOwnAccount(user:ContributorUser,password:string,confirmation:string){
+    this.limit(`close-account:${user.id}`);
     this.db.exec('BEGIN IMMEDIATE');try{
-      this.requireAdmin(admin);
-      const target=this.db.prepare('SELECT username,role,closed_at FROM contributor_users WHERE id=?').get(userId) as {username:string;role:string;closed_at:number|null}|undefined;
-      if(!target)throw new StoreError('账号不存在',404);
+      const target=this.db.prepare('SELECT username,role,password_hash,disabled,closed_at FROM contributor_users WHERE id=?').get(user.id) as {username:string;role:string;password_hash:string;disabled:number;closed_at:number|null}|undefined;
+      if(!target||target.disabled||target.closed_at)throw new StoreError('账号已停用或注销',409);
       if(confirmation!==target.username)throw new StoreError('请输入正确的用户名确认注销');
-      if(target.closed_at)throw new StoreError('账号已注销',409);
-      if(target.role==='admin'&&(this.db.prepare("SELECT COUNT(*) AS count FROM contributor_users WHERE role='admin' AND disabled=0 AND approval_status='approved' AND closed_at IS NULL").get() as {count:number}).count<=1)throw new StoreError('不能注销最后一位管理员',409);
-      if(admin.id===userId)throw new StoreError('不能注销自己的账号',403);
-      const now=Date.now();this.db.prepare('UPDATE contributor_users SET disabled=1,closed_at=? WHERE id=?').run(now,userId);
-      this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(userId);
-      this.db.prepare('UPDATE contributor_invites SET revoked=1 WHERE created_by=? AND used_by IS NULL').run(userId);
-      for(const table of ['contributor_applications','contributor_admin_applications'])this.db.prepare(`UPDATE ${table} SET status='rejected',admin_note='账号已由管理员注销',reviewed_at=?,reviewer_id=?,revision=revision+1 WHERE user_id=? AND status='pending'`).run(now,admin.id,userId);
-      this.audit(admin,'close-account',userId);this.db.exec('COMMIT');
+      if(!matchesPassword(password,target.password_hash))throw new StoreError('当前密码不正确',401);
+      if(target.role==='admin'&&(this.db.prepare("SELECT COUNT(*) AS count FROM contributor_users WHERE role='admin' AND disabled=0 AND approval_status='approved' AND closed_at IS NULL").get() as {count:number}).count<=1)throw new StoreError('不能注销最后一位管理员，请先由另一位管理员接任',409);
+      const now=Date.now();this.db.prepare('UPDATE contributor_users SET disabled=1,closed_at=? WHERE id=?').run(now,user.id);
+      this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(user.id);
+      this.db.prepare('UPDATE contributor_invites SET revoked=1 WHERE created_by=? AND used_by IS NULL').run(user.id);
+      for(const table of ['contributor_applications','contributor_admin_applications'])this.db.prepare(`UPDATE ${table} SET status='rejected',admin_note='用户已主动注销账号',reviewed_at=?,reviewer_id=?,revision=revision+1 WHERE user_id=? AND status='pending'`).run(now,user.id,user.id);
+      this.audit(user,'close-own-account',user.id);this.db.exec('COMMIT');
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
   register(username:string,password:string,reason:string){

@@ -1,12 +1,14 @@
 {
-  "testedAt": "2026-10-21T15:19:55.506Z",
+  "testedAt": "2026-10-21T16:23:39.836Z",
   "isolatedDatabase": true,
   "checks": [
     "public directory and approved member page show names and roles without account internals or administrator actions",
     "member application persists, is private to author, cannot self-approve or spoof role, and appears in administrator queue",
     "reject, resubmit and approve update role immediately in existing session; duplicate review fails",
-    "typed account closure blocks login, existing sessions and upload; hides closed user and retains original album",
-    "same-origin checks protect administrator requests and account closure"
+    "self closure requires password and exact username, rejects foreign targets, clears cookie and all sessions, blocks upload and preserves historical album",
+    "administrator disable is reversible, never closes an account, and is forbidden to contributors",
+    "pending applicants may close their own account without acquiring editing rights",
+    "administrator UI has no account closure control, account settings belongs to current user and member directory is linked from public header"
   ],
-  "browserFixture": "browser_member_7616d4"
+  "browserFixture": "browser_member_c6cfbb"
 }

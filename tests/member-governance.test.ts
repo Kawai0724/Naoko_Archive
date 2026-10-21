@@ -14,7 +14,7 @@ function setup(t:TestContext){
   t.after(()=>{store.close();rmSync(directory,{recursive:true,force:true});});return {directory,store,identity,admin,approved};
 }
 test('member directory exposes only approved active names, roles and join dates, with no account internals',t=>{
-  const {identity,admin,approved}=setup(t);approved('visible_member');identity.register('pending_private',password,'secret application');const blocked=approved('disabled_member');identity.disable(admin,blocked.user.id,true);const closed=approved('closed_member');identity.closeAccount(admin,closed.user.id,'closed_member');
+  const {identity,admin,approved}=setup(t);approved('visible_member');identity.register('pending_private',password,'secret application');const blocked=approved('disabled_member');identity.disable(admin,blocked.user.id,true);const closed=approved('closed_member');identity.closeOwnAccount(closed.user,password,'closed_member');
   const members=identity.publicMembers();assert.deepEqual(members.map(m=>m.username),['fly-me-to-1980','visible_member']);
   for(const row of members)assert.deepEqual(Object.keys(row).sort(),['created_at','role','username']);assert.equal(members[0].role,'admin');assert.equal(Object.getPrototypeOf(members[0]),Object.prototype);
 });
@@ -43,28 +43,43 @@ test('reject and resubmit use revisions; approval atomically updates role, audit
 test('closing account invalidates every session, keeps albums and ownership and prevents reactivation or username reuse',t=>{
   const {identity,store,admin,approved}=setup(t),a=approved('archived_author'),second=identity.login('archived_author',password);
   const album=new ContributorStore(store,a.user).save({...emptyAlbum(),title:'Preserve historical contribution'},'draft');const before=store.db.prepare('SELECT working_json,published_json FROM albums WHERE id=?').get(album.id);
-  identity.requestAdmin(a.user,'申请管理',0);identity.closeAccount(admin,a.user.id,'archived_author');
+  identity.requestAdmin(a.user,'申请管理',0);identity.closeOwnAccount(a.user,password,'archived_author');
   assert.equal(identity.session(a.token),null);assert.equal(identity.session(second.token),null);assert.throws(()=>identity.login('archived_author',password),/不正确/);
   assert.throws(()=>new ContributorStore(store,a.user));assert.throws(()=>identity.disable(admin,a.user.id,false),/已注销/);assert.throws(()=>identity.register('archived_author',password,''),/已被使用/);
-  assert.throws(()=>identity.closeAccount(admin,a.user.id,'archived_author'),e=>e instanceof StoreError&&e.status===409);
+  assert.throws(()=>identity.closeOwnAccount(a.user,password,'archived_author'),e=>e instanceof StoreError&&e.status===409);
   assert.deepEqual(store.db.prepare('SELECT working_json,published_json FROM albums WHERE id=?').get(album.id),before);assert.equal(identity.owner(album.id),a.user.id);
   assert.equal(identity.adminApplications(admin).find(r=>r.user_id===a.user.id)?.status,'rejected');assert.throws(()=>identity.reviewAdminApplication(admin,a.user.id,'approved',1,''));
   assert.ok(!identity.publicMembers().some(m=>m.username==='archived_author'));assert.ok(identity.adminData(admin).users.find(u=>u.id===a.user.id)?.closed_at);
 });
-test('only real administrators may close accounts; typed confirmation, self and last-admin safeguards leave data unchanged',t=>{
+test('self closure requires the current password and exact username, and protects the last active administrator',t=>{
   const {identity,store,admin,approved}=setup(t),a=approved('ordinary_member');
-  assert.throws(()=>identity.closeAccount(a.user,admin.id,'fly-me-to-1980'),/仅管理员/);assert.throws(()=>identity.closeAccount({...a.user,role:'admin'},admin.id,'fly-me-to-1980'),/仅管理员/);
-  assert.throws(()=>identity.closeAccount(admin,a.user.id,'wrong-user'),/正确的用户名/);assert.equal(identity.session(a.token)?.username,'ordinary_member');
-  assert.throws(()=>identity.closeAccount(admin,admin.id,admin.username),/最后一位管理员/);
+  assert.throws(()=>identity.closeOwnAccount(a.user,password,admin.username),/正确的用户名/);
+  assert.throws(()=>identity.closeOwnAccount(a.user,'wrong-password',a.user.username),/当前密码不正确/);
+  assert.equal(identity.session(a.token)?.username,'ordinary_member');
+  assert.throws(()=>identity.closeOwnAccount(admin,password,admin.username),/最后一位管理员/);
   identity.requestAdmin(a.user,'help',0);identity.reviewAdminApplication(admin,a.user.id,'approved',1,'');const second=identity.session(a.token)!;
-  assert.throws(()=>identity.closeAccount(second,second.id,second.username),/自己的账号/);
-  const unused=identity.invite(second);identity.closeAccount(admin,second.id,second.username);
+  const unused=identity.invite(second);identity.closeOwnAccount(second,password,second.username);
   assert.throws(()=>identity.accept(unused.token,'revoked_invitee',password),/邀请无效/);assert.throws(()=>identity.requireAdmin(second),/仅管理员/);
   assert.equal(identity.publicMembers().filter(m=>m.role==='admin').length,1);
-  assert.equal((store.db.prepare("SELECT COUNT(*) AS count FROM contributor_audit WHERE action='close-account'").get() as {count:number}).count,1);
+  assert.equal((store.db.prepare("SELECT COUNT(*) AS count FROM contributor_audit WHERE action='close-own-account' AND actor_id=target").get() as {count:number}).count,1);
+});
+test('only administrators may temporarily disable members; enabling restores login without closing the account',t=>{
+  const {identity,store,admin,approved}=setup(t),a=approved('temporary_member'),other=approved('ordinary_actor');
+  assert.throws(()=>identity.disable(other.user,a.user.id,true),/仅管理员/);
+  assert.throws(()=>identity.disable({...other.user,role:'admin'},a.user.id,true),/仅管理员/);
+  identity.disable(admin,a.user.id,true);assert.equal(identity.session(a.token),null);assert.throws(()=>identity.login(a.user.username,password),/不正确/);
+  assert.throws(()=>identity.closeOwnAccount(a.user,password,a.user.username),/停用或注销/);
+  assert.equal((store.db.prepare('SELECT closed_at FROM contributor_users WHERE id=?').get(a.user.id) as {closed_at:null}).closed_at,null);
+  identity.disable(admin,a.user.id,false);assert.equal(identity.login(a.user.username,password).user.id,a.user.id);
+});
+test('failed closure attempts are rate limited and never close the account',t=>{
+  const {identity,approved}=setup(t),a=approved('rate_limited_member');
+  for(let i=0;i<10;i++)assert.throws(()=>identity.closeOwnAccount(a.user,'bad-password',a.user.username),/当前密码不正确/);
+  assert.throws(()=>identity.closeOwnAccount(a.user,password,a.user.username),e=>e instanceof StoreError&&e.status===429);
+  assert.ok(identity.session(a.token));
 });
 test('disabled applicants cannot gain admin rights and closed registration applications cannot be revived',t=>{
   const {identity,admin,approved}=setup(t),a=approved('paused_applicant');identity.requestAdmin(a.user,'help',0);identity.disable(admin,a.user.id,true);
   assert.throws(()=>identity.reviewAdminApplication(admin,a.user.id,'approved',1,''),/不允许升级/);identity.disable(admin,a.user.id,false);identity.reviewAdminApplication(admin,a.user.id,'approved',1,'');
-  const pending=identity.register('closed_pending',password,'');identity.closeAccount(admin,pending.user.id,'closed_pending');assert.throws(()=>identity.reviewRegistration(admin,pending.user.id,'approved',1,''),/已停用或注销/);assert.equal(identity.application(pending.user)?.status,'rejected');
+  const pending=identity.register('closed_pending',password,'');identity.closeOwnAccount(pending.user,password,'closed_pending');assert.throws(()=>identity.reviewRegistration(admin,pending.user.id,'approved',1,''),/已停用或注销/);assert.equal(identity.application(pending.user)?.status,'rejected');
 });

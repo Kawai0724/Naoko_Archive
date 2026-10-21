@@ -22,7 +22,7 @@
   .search-results span{font-size:18px}
 }
 
-/* Keep the four primary destinations visible, including while scrolling. */
+/* Keep the primary destinations visible, including while scrolling. */
 .header-main{display:grid;grid-template-columns:minmax(220px,1fr) auto auto;grid-template-areas:"brand nav actions";gap:40px;min-height:110px}
 .header-brand{grid-area:brand;justify-self:start}
 .header-brand>span{font-size:30px;letter-spacing:2px}
@@ -47,7 +47,7 @@
   .header-desktop-nav{gap:24px;font-size:18px}
   .header-actions .header-search-trigger{min-width:98px;min-height:48px;font-size:17px;padding:0 14px}
 }
-@media(max-width:700px){
+@media(max-width:1000px){
   .header-main{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand actions" "nav nav";column-gap:12px;row-gap:10px;padding-top:17px;padding-bottom:10px;min-height:0}
   .header-brand>span{font-size:25px;letter-spacing:1.4px}
   .header-brand i{font-size:18px;letter-spacing:1.2px}

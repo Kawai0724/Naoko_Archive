@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import ArchiveSearch, { type SearchAlbum } from './ArchiveSearch';
 import DirectoryNavigation, { type DirectoryEntry } from './DirectoryNavigation';
 
-export const navigation = [['/archive','主页'],['/contributor','参与共建'],['/about','关于']];
+export const navigation = [['/archive','主页'],['/contributor','参与共建'],['/members','社区成员'],['/about','关于']];
 export default function SiteHeader({localContributor=false,albums,directoryEntries}:{localContributor?:boolean;albums?:SearchAlbum[];directoryEntries?:DirectoryEntry[]}) {
   const pathname=usePathname();
   const [searchOpen,setSearchOpen]=useState(false);
