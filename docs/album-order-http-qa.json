@@ -1,0 +1,18 @@
+{
+  "testedAt": "2026-10-21T17:08:43.149Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "creation order differs from release chronology",
+    "public catalogue and administrator API both sort by full release date ascending",
+    "earliest edition date used when album date absent",
+    "missing date last",
+    "unrelated edit does not change either order"
+  ],
+  "order": [
+    "ORDER_EARLY",
+    "ORDER_MAY_FALLBACK",
+    "ORDER_OCTOBER",
+    "ORDER_LATE",
+    "ORDER_UNKNOWN"
+  ]
+}

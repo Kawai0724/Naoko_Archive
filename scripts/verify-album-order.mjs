@@ -1,0 +1,14 @@
+// Use only a fresh disposable localhost:3416 database and this test password.
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+const base='http://127.0.0.1:3416',password='album-order-test-password';
+async function request(route,{method='GET',body,cookie='',expected=200,raw=false}={}){const r=await fetch(base+route,{method,headers:{'Content-Type':'application/json',Origin:base,...(cookie?{Cookie:cookie}:{})},body:body===undefined?undefined:JSON.stringify(body)});assert.equal(r.status,expected,route);return raw?r:r.json();}
+const login=await request('/api/contributor/auth/login',{method:'POST',body:{username:'fly-me-to-1980',password},raw:true}),cookie=login.headers.get('set-cookie').split(';')[0],fixtures=[];
+for(const [title,date,versionDate] of [['ORDER_LATE','1988-11-01'],['ORDER_UNKNOWN',''],['ORDER_EARLY','1982-07-01'],['ORDER_OCTOBER','1986-10-21'],['ORDER_MAY_FALLBACK','','1986-05-21']]){
+ let album=(await request('/api/contributor/albums',{method:'POST',cookie,expected:201,body:{action:'submit',album:{title,artist:'Test artist',firstReleaseDate:date?{value:date}:null,editions:versionDate?[{id:'edition',editionName:'Test',releaseDate:{value:versionDate}}]:[]}}})).album;
+ const queue=await request('/api/contributor/requests',{cookie}),r=queue.albumRequests.find(r=>r.album_id===album.id&&r.status==='pending');album=(await request('/api/contributor/requests',{method:'POST',cookie,body:{action:'review-album-change',id:r.id,decision:'approved',expectedRevision:r.revision}})).album;fixtures.push(album);
+}
+const expected=[fixtures[2],fixtures[4],fixtures[3],fixtures[0],fixtures[1]],ids=new Set(fixtures.map(a=>a.id));
+async function verify(){const rows=(await request('/api/contributor/albums',{cookie})).albums.filter(a=>ids.has(a.id));assert.deepEqual(rows.map(a=>a.id),expected.map(a=>a.id));const html=await (await request('/discography',{raw:true})).text(),positions=expected.map(a=>html.indexOf(`href="/discography/${a.slug}"`));assert.ok(positions.every(p=>p>=0));assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));}
+await verify();let late=fixtures[0];late=(await request('/api/contributor/albums/'+late.id,{method:'PATCH',cookie,body:{action:'draft',expectedRevision:late.revision,album:{...late,description:'Unrelated edit must not reorder albums'}}})).album;await verify();
+const report={testedAt:new Date().toISOString(),isolatedDatabase:true,checks:['creation order differs from release chronology','public catalogue and administrator API both sort by full release date ascending','earliest edition date used when album date absent','missing date last','unrelated edit does not change either order'],order:expected.map(a=>a.title)};await writeFile(new URL('../docs/album-order-http-qa.json',import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await request('/api/contributor/auth/logout',{method:'POST',cookie});

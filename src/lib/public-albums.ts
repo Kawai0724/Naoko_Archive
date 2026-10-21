@@ -2,7 +2,7 @@ import 'server-only';
 import { connection } from 'next/server';
 import { releases } from '@/data/releases';
 import { albumStore,archiveDataEnabled } from './album-store';
-import { releaseToAlbum, publicAlbum } from './albums';
+import { releaseToAlbum, publicAlbum,compareAlbumReleaseDate } from './albums';
 import { currentContributor,localPublicContext } from './local-access';
 import { editionCover } from './edition-hierarchy';
 import { withLocalCoverPreviews,type CatalogueAlbum } from './local-cover-preview';
@@ -10,7 +10,7 @@ export async function publicAlbums():Promise<CatalogueAlbum[]>{
   await connection();
   if(await localPublicContext()){const store=albumStore();return store.published().map(a=>withLocalCoverPreviews(a,store.get(a.id)));}
   if(archiveDataEnabled()){const member=await currentContributor(),records=albumStore().published();return member?.accountStatus==='approved'?records:records.map(a=>({...a,mediaRequiresLogin:a.media.length>0,media:[]}));}
-  return releases.map(r=>publicAlbum(releaseToAlbum(r,'')));
+  return releases.map(r=>publicAlbum(releaseToAlbum(r,''))).sort(compareAlbumReleaseDate);
 }
 export function artwork(a:CatalogueAlbum,editionId=a.editions[0]?.id){
   if(a.mediaRequiresLogin)return {cover:'',alt:'登录查看封面',original:false,local:false};

@@ -11,6 +11,16 @@ export function emptyEdition():AlbumEdition{return {id:uid(),editionName:null,ca
 export function emptyMedia(albumId:string):AlbumMedia{return {id:uid(),albumId,type:'audio',displayName:null,storageKey:null,source:null,relatedEditionId:null,relatedTrackId:null,rightsStatus:'private',publicationConfirmed:false,mimeType:null,size:null,bitDepth:null,sampleRate:null,audioScope:null,codec:null,durationSeconds:null,channels:null};}
 export function partialDate(value:string):PartialDate{return value?{value,precision:value.length===4?'year':value.length===7?'month':'day'}:null;}
 export function validDate(d:PartialDate):boolean{if(!d)return true;const patterns={year:/^\d{4}$/,month:/^\d{4}-(0[1-9]|1[0-2])$/,day:/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/};if(!patterns[d.precision]?.test(d.value)||Number(d.value.slice(0,4))===0)return false;if(d.precision==='day'){const t=new Date(d.value+'T00:00:00Z');return !Number.isNaN(t.valueOf())&&t.toISOString().slice(0,10)===d.value;}return true;}
+type ReleaseDatedAlbum={id:string;firstReleaseDate:PartialDate;editions:{releaseDate:PartialDate}[]};
+export function albumReleaseDate(album:Omit<ReleaseDatedAlbum,'id'>):PartialDate{
+  if(album.firstReleaseDate&&validDate(album.firstReleaseDate))return album.firstReleaseDate;
+  return album.editions.reduce<PartialDate>((earliest,edition)=>{const date=edition.releaseDate;return date&&validDate(date)&&(!earliest||date.value<earliest.value)?date:earliest;},null);
+}
+export function compareAlbumReleaseDate(a:ReleaseDatedAlbum,b:ReleaseDatedAlbum):number{
+  const left=albumReleaseDate(a)?.value,right=albumReleaseDate(b)?.value;
+  if(left!==right){if(!left)return 1;if(!right)return -1;return left<right?-1:1;}
+  return a.id<b.id?-1:a.id>b.id?1:0;
+}
 export function durationSeconds(s:string):number|null{if(!s.trim()||!/^(?:\d{1,3}:)?\d{1,3}:[0-5]\d$/.test(s))return null;const p=s.split(':').map(Number);return p.length===3&&p[1]>59?null:p.reduce((n,v)=>n*60+v,0);}
 export function durationText(n:number|null):string{if(n==null)return '';const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return `${h?h+':'+String(m).padStart(2,'0'):m}:${String(s).padStart(2,'0')}`;}
 export function validUrl(s:string):boolean{try{const u=new URL(s);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password;}catch{return false;}}
