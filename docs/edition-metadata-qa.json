@@ -1,0 +1,71 @@
+{
+  "testedAt": "2026-10-21T16:57:54.281Z",
+  "isolatedDatabase": true,
+  "checks": [
+    {
+      "dateCount": 1,
+      "lowerEditionBlocks": 0,
+      "metadata": [
+        "艺人河合奈保子",
+        "作品类型专辑",
+        "载体CD",
+        "唱片编号33CA-1001",
+        "厂牌Nippon Columbia Co.,Ltd",
+        "地区日本",
+        "条码T4988 001 03733 0",
+        "发行日期1986-05-21"
+      ],
+      "scrollWidth": 360,
+      "width": 360
+    },
+    {
+      "dateCount": 1,
+      "lowerEditionBlocks": 0,
+      "metadata": [
+        "艺人河合奈保子",
+        "作品类型专辑",
+        "载体CD",
+        "唱片编号33CA-1001",
+        "厂牌Nippon Columbia Co.,Ltd",
+        "地区日本",
+        "条码T4988 001 03733 0",
+        "发行日期1986-05-21"
+      ],
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "dateCount": 1,
+      "lowerEditionBlocks": 0,
+      "metadata": [
+        "艺人河合奈保子",
+        "作品类型专辑",
+        "载体CD",
+        "唱片编号33CA-1001",
+        "厂牌Nippon Columbia Co.,Ltd",
+        "地区日本",
+        "条码T4988 001 03733 0",
+        "发行日期1986-05-21"
+      ],
+      "scrollWidth": 768,
+      "width": 768
+    },
+    {
+      "dateCount": 1,
+      "lowerEditionBlocks": 0,
+      "metadata": [
+        "艺人河合奈保子",
+        "作品类型专辑",
+        "载体CD",
+        "唱片编号33CA-1001",
+        "厂牌Nippon Columbia Co.,Ltd",
+        "地区日本",
+        "条码T4988 001 03733 0",
+        "发行日期1986-05-21"
+      ],
+      "scrollWidth": 1440,
+      "width": 1440
+    }
+  ],
+  "purchaseLinkPreserved": true
+}
