@@ -1,0 +1,3 @@
+import { checkAdminPassword,contributorCookie,createContributorSession,maxAge } from '@/lib/contributor-auth';
+export const runtime='nodejs';
+export async function POST(req:Request){try{const body=await req.json();if(!checkAdminPassword(body.password))return Response.json({error:'管理员凭据无效'},{status:401});const response=Response.json({ok:true});response.headers.append('Set-Cookie',`${contributorCookie}=${createContributorSession()}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}; ${process.env.NODE_ENV==='production'?'Secure; ':''}`);return response;}catch{return Response.json({error:'请求格式错误'},{status:400});}}

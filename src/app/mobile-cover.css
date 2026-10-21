@@ -1,0 +1,83 @@
+/* Portrait edition. Desktop photo, typography, fade and interaction stay in splash.css. */
+@media (max-width: 768px) {
+  .splash.splash--cover {
+    display: grid;
+    grid-template-rows: 55vh minmax(45vh, auto);
+    grid-template-rows: 55svh minmax(45svh, auto);
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: visible;
+    background: #f1ebdd;
+  }
+
+  .splash--cover > picture {
+    position: relative;
+    display: block;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    height: 55vh;
+    height: 55svh;
+    overflow: hidden;
+    background: #101923;
+    isolation: isolate;
+  }
+
+  .splash--cover .splash-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 85% 15%;
+    z-index: 0;
+  }
+
+  .splash--cover .splash-overlay { display: none; }
+
+  .splash--cover .splash-content {
+    position: relative;
+    grid-row: 2;
+    left: auto;
+    top: auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px clamp(24px, 7vw, 56px);
+    padding: clamp(24px, 4svh, 42px) clamp(24px, 7vw, 56px);
+    padding-bottom: max(clamp(24px, 4svh, 42px), env(safe-area-inset-bottom));
+    background: #f1ebdd;
+  }
+
+  .splash--cover h1 {
+    max-width: 100%;
+    font-size: clamp(42px, 10.6vw, 66px);
+    line-height: 1.02;
+    letter-spacing: -.02em;
+    text-wrap: initial;
+  }
+
+  .splash--cover h1 span { margin-top: 1px; }
+
+  .splash--cover .splash-enter {
+    min-height: 52px;
+    flex-shrink: 0;
+    margin-top: 20px;
+    margin-top: clamp(16px, 2.5svh, 26px);
+    margin-left: 0;
+    padding: 10px 0;
+    font-size: 17px;
+    line-height: 1.4;
+    letter-spacing: .18em;
+    gap: 36px;
+  }
+
+  .splash--cover .splash-enter svg { width: 24px; height: 24px; }
+  .splash--cover .splash-enter:hover { gap: 44px; }
+}

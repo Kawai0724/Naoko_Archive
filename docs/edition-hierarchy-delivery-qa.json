@@ -1,0 +1,37 @@
+{
+  "tests": {
+    "passed": 24,
+    "failed": 0
+  },
+  "build": "passed",
+  "typecheck": "passed",
+  "actualProjectMigration": "passed",
+  "existingAlbumRecordsPreserved": 8,
+  "existingMediaFileReferencesPreserved": 0,
+  "backup": "/Users/xiaowenli/Projects/naoko-archive/data/backups/before-edition-hierarchy-20261021-124707.sqlite",
+  "productionChecks": [
+    {
+      "path": "/contributor/albums/577a2e8c-7523-43c1-b975-52aba362ff38",
+      "status": 404
+    },
+    {
+      "path": "/contributor/albums/577a2e8c-7523-43c1-b975-52aba362ff38/editions/new",
+      "status": 404
+    },
+    {
+      "path": "/contributor/albums/577a2e8c-7523-43c1-b975-52aba362ff38/editions/02830455-20a3-4ea0-8511-057cd915405d/preview",
+      "status": 404
+    },
+    {
+      "path": "/discography/sky-park",
+      "status": 200
+    },
+    {
+      "path": "/discography/sky-park/editions/legacy-sky-park-edition",
+      "status": 200
+    }
+  ],
+  "privateDataBundled": false,
+  "protectedSourceFilesUnchanged": 26,
+  "deployed": false
+}

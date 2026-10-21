@@ -1,0 +1,31 @@
+{
+  "name": "naoko-archive",
+  "version": "1.4.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "dev:admin": "ARCHIVE_LOCAL_ADMIN=1 next dev --hostname 127.0.0.1",
+    "test": "tsc -p tsconfig.test.json && node --test .test-build/tests/*.test.js"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.8",
+    "cos-nodejs-sdk-v5": "^3.0.0",
+    "lucide-react": "^0.468.0",
+    "music-metadata": "12.2.3",
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

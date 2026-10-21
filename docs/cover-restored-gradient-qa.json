@@ -1,0 +1,12 @@
+{
+  "build": "npm run build: passed",
+  "desktopViewport": [
+    1440,
+    900
+  ],
+  "horizontalOverflow": false,
+  "originalGradientRestored": true,
+  "cropBlockIdenticalToPreviousCommit": true,
+  "localFadeRemoved": true,
+  "screenshot": "screenshots/cover-restored-gradient.jpg"
+}

@@ -1,0 +1,79 @@
+{
+  "build": "npm run build: passed",
+  "desktopScreenshot": "screenshots/cover-local-fade-desktop.jpg",
+  "desktop1440": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "overflow": false,
+    "visualCheck": "Face intact; title and ENTER readable; whole-photo gradient removed."
+  },
+  "checks": [
+    {
+      "overflow": false,
+      "overlay": "none",
+      "photoBounds": {
+        "bottom": 1233.21875,
+        "height": 1233.21875,
+        "left": -42.19659423828125,
+        "right": 2150.2018432617188,
+        "top": 0,
+        "width": 2192.3984375,
+        "x": -42.19659423828125,
+        "y": 0
+      },
+      "titleOverflow": false,
+      "viewport": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "overflow": false,
+      "overlay": "none",
+      "photoBounds": {
+        "bottom": 876.953125,
+        "height": 876.953125,
+        "left": -371.3399658203125,
+        "right": 1187.6990966796875,
+        "top": 0,
+        "width": 1559.0390625,
+        "x": -371.3399658203125,
+        "y": 0
+      },
+      "titleOverflow": false,
+      "viewport": [
+        1024,
+        768
+      ]
+    },
+    {
+      "overflow": false,
+      "photoFilter": "none",
+      "photoTransform": "none",
+      "pseudoContent": "none",
+      "source": "http://127.0.0.1:4173/cover-mobile.jpg",
+      "titleOverflow": false,
+      "viewport": [
+        768,
+        1024
+      ]
+    },
+    {
+      "overflow": false,
+      "photoFilter": "none",
+      "photoTransform": "none",
+      "pseudoContent": "none",
+      "source": "http://127.0.0.1:4173/cover-mobile.jpg",
+      "titleOverflow": false,
+      "viewport": [
+        390,
+        844
+      ]
+    }
+  ],
+  "sourceAssetUnchanged": true,
+  "rightSourceCrop": "10.5%",
+  "localFade": "Blurred warm wash confined to the text bounds. No photographic filters or full-frame overlays."
+}

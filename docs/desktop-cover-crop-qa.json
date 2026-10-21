@@ -1,0 +1,26 @@
+{
+  "change": "CSS framing only: desktop photo height 114%, top-aligned with subject-aware horizontal position. Original photo untouched.",
+  "build": "npm run build: passed",
+  "checkedViewports": [
+    [
+      1440,
+      900
+    ],
+    [
+      1920,
+      1080
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "horizontalOverflow": false,
+  "faceVisible": true,
+  "mobileUnchanged": true,
+  "screenshot": "screenshots/desktop-cover-crop.jpg"
+}

@@ -1,0 +1,45 @@
+{
+  "productionGuards": [
+    {
+      "path": "/contributor",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/contributor/albums/new",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/contributor/albums/fc5b2b23-d7fb-4c75-81bd-7bef61c5a56a/edit",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/contributor/albums/fc5b2b23-d7fb-4c75-81bd-7bef61c5a56a/preview",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/api/contributor/albums",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/api/contributor/media/not-a-file",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/discography",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

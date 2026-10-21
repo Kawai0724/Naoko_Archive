@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checks": [
+    "album created through browser",
+    "version A saved through browser",
+    "independent version metadata and tracklists",
+    "per-version actual cover upload",
+    "audio creates track in selected version",
+    "cross-version audio link refused",
+    "first version cover inherited by album catalog",
+    "second level displays both versions and covers",
+    "version detail isolates tracklist",
+    "private lyrics and audio absent from public pages",
+    "draft reorder retains approved cover",
+    "approved reorder updates album cover"
+  ],
+  "isolatedData": true
+}

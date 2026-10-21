@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "four actual lossless formats uploaded",
+    "AAC M4A rejected",
+    "automatic track creation rejected",
+    "existing stable track association",
+    "private protected range reads",
+    "image endpoint rejects audio",
+    "invalid range rejected",
+    "draft absent from public list",
+    "approved record excludes audio files and paths",
+    "replacement remains a draft",
+    "stale revision conflict",
+    "missing track rejected",
+    "invalid file removed"
+  ],
+  "passed": true,
+  "localOnly": true
+}

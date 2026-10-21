@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "new draft uploads without a prior save",
+    "one cover plus five lyric-sheet images",
+    "private image bytes persist",
+    "seventh image rejected without partial save",
+    "JSON-save bypass rejected",
+    "replacement at capacity",
+    "stale upload conflict",
+    "invalid batch rollback",
+    "10 MB per-image cap",
+    "unpublished images stay private"
+  ],
+  "passed": true,
+  "localOnly": true
+}

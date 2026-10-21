@@ -1,0 +1,117 @@
+{
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "03 发行版本 (0)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "04 添加封面 (0/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "05 添加音源 (6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "06 来源与修订",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "03 发行版本 (0)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "04 添加封面 (0/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "05 添加音源 (6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "06 来源与修订",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "03 发行版本 (0)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "04 添加封面 (0/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "05 添加音源 (6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "06 来源与修订",
+      "horizontalOverflow": false
+    }
+  ],
+  "removedFieldsVerified": true,
+  "twoWayTrackLinksVerified": true,
+  "perTrackMultiSelectVerified": true,
+  "existingTrackSingleFileVerified": true,
+  "fileChooserAutomation": "Blocked by Chrome extension file-URL permission; actual HTTP uploads verified."
+}

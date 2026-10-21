@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.DS_Store
+*.log
+/data/
+.test-build/
+.env.local
+.contributor-admin-password

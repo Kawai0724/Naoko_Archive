@@ -1,0 +1,207 @@
+{
+  "pages": [
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "一级专辑管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "二级版本管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "版本编辑",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "一级公开目录",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "二级公开版本",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "page": "具体版本资料",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "一级专辑管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "二级版本管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "版本编辑",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "一级公开目录",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "二级公开版本",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "page": "具体版本资料",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "一级专辑管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "二级版本管理",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "版本编辑",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "一级公开目录",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "二级公开版本",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "page": "具体版本资料",
+      "horizontalOverflow": false
+    }
+  ],
+  "versionSections": [
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "03 添加封面 (1/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "04 添加音源 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "section": "05 来源与修订",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "03 添加封面 (1/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "04 添加音源 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "section": "05 来源与修订",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "01 基本信息",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "02 曲目 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "03 添加封面 (1/6)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "04 添加音源 (1)",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "section": "05 来源与修订",
+      "horizontalOverflow": false
+    }
+  ],
+  "albumAndVersionCreationVerified": true,
+  "firstAlbumCover": "/api/archive/media/577a2e8c-7523-43c1-b975-52aba362ff38/10ca556c-bef7-4cb4-a84e-bf09ba1ab393",
+  "twoVersionCoversLoaded": true
+}

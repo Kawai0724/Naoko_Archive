@@ -1,0 +1,10 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { localPage } from '@/lib/local-access';
+import { albumStore } from '@/lib/album-store';
+import { publicAlbum } from '@/lib/albums';
+import { editionCover } from '@/lib/edition-hierarchy';
+import AlbumDisplay from '@/components/AlbumDisplay';
+import PrivateImage from '@/components/contributor/PrivateImage';
+export const metadata={title:'工作稿预览'};
+export default async function Page({params}:{params:Promise<{id:string;editionId?:string}>}){const access=await localPage(),{id,editionId}=await params,a=albumStore().get(id);if(!a||a.deletedAt||(editionId&&!a.editions.some(e=>e.id===editionId)))notFound();const view=publicAlbum(a);view.media=[];const covers=Object.fromEntries(a.editions.map(e=>{const cover=editionCover(a.media,e.id);return [e.id,cover?.storageKey?<PrivateImage storageKey={cover.storageKey} token={access.token} className="edition-detail-image"/>:null];}));return <><div className="preview-banner"><strong>草稿预览</strong><Link href={editionId?`/contributor/albums/${id}/editions/${editionId}/edit`:`/contributor/albums/${id}`}>← 返回{editionId?'版本编辑器':'版本目录'}</Link></div><AlbumDisplay album={view} editionId={editionId} privateCovers={covers} preview local/></>;}

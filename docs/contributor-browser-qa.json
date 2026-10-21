@@ -1,0 +1,152 @@
+{
+  "viewports": [
+    {
+      "horizontalOverflow": false,
+      "section": "基本信息",
+      "sidebarAfterForm": true,
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "曲目",
+      "sidebarAfterForm": true,
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "发行版本",
+      "sidebarAfterForm": true,
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "媒体",
+      "sidebarAfterForm": true,
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "来源与修订",
+      "sidebarAfterForm": true,
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "基本信息",
+      "sidebarAfterForm": true,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "曲目",
+      "sidebarAfterForm": true,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "发行版本",
+      "sidebarAfterForm": true,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "媒体",
+      "sidebarAfterForm": true,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "来源与修订",
+      "sidebarAfterForm": true,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "基本信息",
+      "sidebarAfterForm": true,
+      "viewport": [
+        360,
+        800
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "曲目",
+      "sidebarAfterForm": true,
+      "viewport": [
+        360,
+        800
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "发行版本",
+      "sidebarAfterForm": true,
+      "viewport": [
+        360,
+        800
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "媒体",
+      "sidebarAfterForm": true,
+      "viewport": [
+        360,
+        800
+      ]
+    },
+    {
+      "horizontalOverflow": false,
+      "section": "来源与修订",
+      "sidebarAfterForm": true,
+      "viewport": [
+        360,
+        800
+      ]
+    }
+  ],
+  "uiSaveVerified": true,
+  "multiPersonCreditsAndMultilineLyricsSaved": true,
+  "fileChooserAutomation": "Blocked by Chrome extension file-URL permission; real multipart upload and private-file reads passed HTTP integration tests.",
+  "screenshots": [
+    "screenshots/contributor-editor-desktop.jpg",
+    "screenshots/contributor-editor-mobile.jpg"
+  ],
+  "privateImagePreviewAfterRestart": {
+    "loaded": true,
+    "naturalWidth": 1,
+    "naturalHeight": 1,
+    "project": "/Users/xiaowenli/Projects/naoko-archive"
+  }
+}

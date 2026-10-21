@@ -1,0 +1,29 @@
+{
+  "actualProject": "/Users/xiaowenli/Projects/naoko-archive",
+  "tests": {
+    "passed": 24,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "newDependencies": false,
+  "deployed": false,
+  "privateDataBundled": false,
+  "sixImageUpload": "passed",
+  "imageViewportWidths": [
+    1440,
+    390,
+    360
+  ],
+  "restartWithSixImages": "passed",
+  "activeLocalServiceVerified": "http://127.0.0.1:3000/contributor/albums/new",
+  "losslessAudioUpload": "passed",
+  "audioFormats": [
+    "FLAC",
+    "PCM WAV",
+    "PCM AIFF",
+    "ALAC"
+  ],
+  "editionHierarchy": "passed",
+  "actualDataMigration": "passed"
+}

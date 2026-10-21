@@ -1,0 +1,36 @@
+{
+  "coverText": [
+    "Naoko Kawai's",
+    "Archive",
+    "ENTER"
+  ],
+  "twoSections": true,
+  "date": true,
+  "contributor": true,
+  "noToolCredits": true,
+  "contributionAnchor": true,
+  "honestContributionState": true,
+  "invalidLinks": [],
+  "checkedAt": "2026-10-21T00:34:01.638294+08:00",
+  "build": "passed",
+  "image": {
+    "path": "public/cover-hero.jpg",
+    "width": 3840,
+    "height": 2155,
+    "bytes": 980883,
+    "sourcePreserved": true,
+    "processing": "Existing non-generative Lanczos3 upscale with gentle denoise/sharpen retained; no new image edits or detail reconstruction."
+  },
+  "browser": {
+    "loadedInChrome": true,
+    "twoSectionContentConfirmedInAccessibilityTree": true,
+    "responsiveVisualChecks": "Incomplete. Native Chrome control was repeatedly interrupted by concurrent user activity (frontmostApplicationChanged); browser extension connection also timed out.",
+    "targetViewports": [
+      "1440x900",
+      "1024x768",
+      "390x844"
+    ],
+    "screenshots": "No new verified viewport screenshots captured.",
+    "serverResources": "All requested page CSS, JS, hero and fonts served successfully. Non-page favicon and Chrome devtools discovery requests returned 404."
+  }
+}

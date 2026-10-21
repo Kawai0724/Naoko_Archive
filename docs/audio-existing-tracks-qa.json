@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "only current edition existing tracks listed",
+    "no automatic track creation option",
+    "selected existing track enables file input",
+    "no selection disables file input",
+    "empty version disables track upload",
+    "empty version link opens track editor",
+    "server rejects new-track target",
+    "existing-track real HTTP upload succeeds"
+  ],
+  "screenshot": "screenshots/audio-existing-tracks.png",
+  "testData": "isolated /private/tmp/naoko-edition-hierarchy-qa",
+  "build": "passed",
+  "tests": "24 passed"
+}

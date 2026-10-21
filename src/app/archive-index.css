@@ -1,0 +1,103 @@
+.archive-index {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr);
+  column-gap: clamp(64px, 7.2vw, 104px);
+  align-items: start;
+  min-height: calc(100svh - 131px);
+  padding-top: clamp(76px, 9.5vh, 112px);
+  padding-bottom: clamp(80px, 10vh, 120px);
+  color: #282a27;
+}
+
+.archive-index-intro { min-width: 0; padding-top: 12px; }
+.archive-index-intro h1 {
+  font-family: var(--editorial);
+  font-size: clamp(84px, 8.5vw, 122px);
+  font-weight: 400;
+  line-height: .92;
+  letter-spacing: -.042em;
+}
+.archive-index-intro h1 > span { display: block; }
+.archive-index-intro > p {
+  max-width: 26em;
+  margin-top: 34px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #73766f;
+  letter-spacing: .015em;
+}
+
+.archive-index-navigation { min-width: 0; }
+.archive-index-navigation ol { list-style: none; padding: 0; margin: 0; }
+.archive-index-navigation li { border-bottom: 1px solid #cbc7bd; }
+.archive-index-navigation li:first-child { border-top: 1px solid #cbc7bd; }
+.archive-index-entry {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 26px;
+  column-gap: 22px;
+  align-items: start;
+  padding: 27px 0 29px;
+  transition: color .18s;
+}
+.archive-index-number {
+  padding-top: 16px;
+  color: #888a82;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .09em;
+  font-variant-numeric: tabular-nums;
+}
+.archive-index-copy { min-width: 0; }
+.archive-index-copy h2 {
+  font-family: var(--editorial);
+  font-size: clamp(48px, 4.6vw, 66px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -.025em;
+}
+.archive-index-copy > p {
+  display: block;
+  margin-top: 7px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #73766f;
+  letter-spacing: .03em;
+  overflow-wrap: anywhere;
+}
+.archive-index-arrow { align-self: center; margin-top: -7px; transition: transform .18s; }
+.archive-index-entry:hover { color: var(--forest); }
+.archive-index-entry:hover .archive-index-arrow { transform: translate(3px, -3px); }
+.archive-index-entry:focus-visible { outline-offset: 5px; }
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .archive-index { column-gap: 48px; padding-top: 72px; padding-bottom: 80px; }
+  .archive-index-intro h1 { font-size: clamp(64px, 8.4vw, 92px); }
+  .archive-index-intro > p { font-size: 13px; margin-top: 28px; }
+  .archive-index-entry { grid-template-columns: 22px minmax(0, 1fr) 22px; column-gap: 18px; padding: 25px 0 27px; }
+  .archive-index-number { padding-top: 12px; font-size: 9px; }
+  .archive-index-copy h2 { font-size: clamp(40px, 4.6vw, 52px); }
+  .archive-index-copy > p { font-size: 11px; }
+  .archive-index-arrow { width: 22px; height: 22px; }
+}
+
+@media (max-width: 768px) {
+  .archive-index {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 46px;
+    min-height: auto;
+    padding: 48px clamp(24px, 5.2vw, 40px) 64px;
+  }
+  .archive-index-intro { padding-top: 0; }
+  .archive-index-intro h1 { font-size: clamp(76px, 20vw, 106px); line-height: .93; }
+  .archive-index-intro > p { font-size: 13px; line-height: 1.8; margin-top: 25px; }
+  .archive-index-entry { grid-template-columns: 22px minmax(0, 1fr) 22px; column-gap: 16px; padding: 23px 0 24px; }
+  .archive-index-number { padding-top: 10px; font-size: 9px; }
+  .archive-index-copy h2 { font-size: clamp(40px, 11vw, 58px); line-height: 1.08; }
+  .archive-index-copy > p { display: block; font-size: 12px; line-height: 1.7; margin-top: 8px; letter-spacing: .01em; }
+  .archive-index-arrow { width: 22px; height: 22px; margin-top: -5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-index-entry, .archive-index-arrow { transition: none; }
+  .archive-index-entry:hover .archive-index-arrow { transform: none; }
+}

@@ -1,0 +1,152 @@
+.archive-community {
+  --community-white: var(--ink);
+  --community-copy: #4f5954;
+  --community-muted: var(--muted);
+  --community-line: var(--line);
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--community-white);
+  padding: clamp(88px, 12vh, 144px) clamp(28px, 5vw, 90px) 46px;
+}
+
+.community-inner { max-width: 1280px; margin: 0 auto; }
+.community-overview, .community-invitation {
+  display: grid;
+  grid-template-columns: 1fr 1.12fr;
+  column-gap: clamp(72px, 10vw, 152px);
+}
+.community-introduction { max-width: 460px; }
+.community-introduction h2 { font-weight: 400; }
+.community-title-en {
+  display: block;
+  font-family: var(--editorial);
+  font-size: clamp(64px, 6vw, 88px);
+  font-weight: 400;
+  line-height: .92;
+  letter-spacing: -.025em;
+}
+.community-title-zh {
+  display: block;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: .14em;
+  margin: 22px 0 26px;
+}
+.archive-community .community-copy-zh {
+  color: var(--community-copy);
+  font-size: 15px;
+  line-height: 2;
+  text-wrap: pretty;
+}
+.archive-community .community-copy-en {
+  max-width: 470px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 16px;
+  text-wrap: pretty;
+}
+.community-metadata {
+  margin: 17px 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  align-content: start;
+  column-gap: 36px;
+  row-gap: 72px;
+}
+.community-metadata dt {
+  color: var(--community-muted);
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: .07em;
+}
+.community-metadata dt > span[aria-hidden] { margin: 0 5px; color: #9c978d; }
+.community-metadata dd { margin: 24px 0 0; font-weight: 400; }
+.community-date {
+  font-family: var(--editorial);
+  font-size: clamp(43px, 4vw, 58px);
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.community-contributor { font-size: clamp(18px, 1.6vw, 23px); line-height: 1.6; overflow-wrap: anywhere; }
+.community-collection { grid-column: 1 / -1; }
+.community-collection dd { font-size: 20px; letter-spacing: .12em; }
+.community-collection dd > span {
+  display: block;
+  font-family: var(--editorial);
+  font-size: 29px;
+  letter-spacing: 0;
+  color: var(--forest);
+  margin-top: 7px;
+}
+.community-invitation { border-top: 1px solid var(--community-line); margin-top: 62px; padding-top: 42px; }
+.community-invitation h3 { font-size: 23px; line-height: 1.7; font-weight: 400; letter-spacing: .04em; }
+.community-invitation h3 > span {
+  display: block;
+  font-family: var(--editorial);
+  font-size: 32px;
+  font-style: italic;
+  letter-spacing: 0;
+  color: var(--forest);
+  margin-top: 7px;
+}
+.community-contribute-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 17px;
+  border-bottom: 1px solid var(--forest);
+  padding: 10px 0;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.community-contribute-link > span[lang] { font-size: 10px; letter-spacing: .10em; }
+.community-footer { margin-top: 66px; }
+.community-footer nav { display: flex; justify-content: space-between; gap: 24px; }
+.community-footer nav > a { padding: 8px 0; font-size: 11px; letter-spacing: .12em; }
+.community-footer nav > a > span { margin-left: 18px; font-size: 16px; }
+.community-rights { margin-top: 25px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.community-rights p + p { margin-top: 4px; }
+.archive-community a { transition: color .2s, border-color .2s; }
+.archive-community a:hover { color: var(--vermilion); border-color: var(--vermilion); }
+.archive-community a:focus-visible { outline-color: var(--forest); }
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .community-overview, .community-invitation { grid-template-columns: 1.15fr 1fr; column-gap: 64px; }
+  .community-metadata { grid-template-columns: 1fr; row-gap: 40px; }
+  .community-metadata dd { margin-top: 15px; }
+  .community-collection dd { font-size: 18px; }
+  .community-collection dd > span { font-size: 24px; }
+  .community-invitation h3 { font-size: 21px; }
+}
+
+@media (max-width: 768px) {
+  .archive-community { background: var(--paper); padding: 64px clamp(24px, 7vw, 48px) 34px; }
+  .community-inner { max-width: 620px; }
+  .community-overview, .community-invitation { grid-template-columns: minmax(0, 1fr); }
+  .community-overview > *, .community-invitation > * { min-width: 0; }
+  .community-introduction { max-width: none; }
+  .community-title-en { font-size: clamp(42px, 11.5vw, 52px); line-height: 1; }
+  .community-title-zh { font-size: 16px; letter-spacing: .05em; margin: 19px 0 24px; }
+  .archive-community .community-copy-zh { font-size: 15px; line-height: 1.75; letter-spacing: normal; }
+  .archive-community .community-copy-en { max-width: 52ch; font-size: 14px; line-height: 1.75; margin-top: 20px; letter-spacing: normal; }
+  .community-metadata { margin-top: 36px; row-gap: 26px; grid-template-columns: minmax(0, 1fr); }
+  .community-metadata > div { border-top: 1px solid var(--community-line); padding-top: 23px; min-width: 0; }
+  .community-metadata dt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; font-size: 10px; letter-spacing: .035em; }
+  .community-metadata dt > span[lang] { order: 1; }
+  .community-metadata dt > span[aria-hidden] { order: 2; margin: 0; }
+  .community-metadata dt > .community-label-zh { order: 3; }
+  .community-metadata dd { margin-top: 12px; }
+  .community-date { font-size: 43px; }
+  .community-contributor { font-size: 20px; line-height: 1.6; }
+  .community-collection dd { font-size: 18px; }
+  .community-collection dd > span { font-size: 26px; }
+  .community-invitation { margin-top: 48px; padding-top: 30px; row-gap: 22px; }
+  .community-invitation h3 { font-size: 20px; }
+  .community-invitation h3 > span { font-size: 28px; margin-top: 2px; }
+  .community-contribute-link { font-size: 14px; gap: 14px; margin-top: 15px; }
+  .community-footer { margin-top: 48px; }
+  .community-footer nav { flex-wrap: wrap; gap: 16px 24px; }
+  .community-footer nav > a { font-size: 9px; letter-spacing: .08em; }
+  .community-footer nav > a > span { margin-left: 8px; font-size: 14px; }
+  .community-rights { margin-top: 23px; font-size: 10px; }
+}

@@ -1,0 +1,155 @@
+/* The photographic cover has its own type and warm fade. */
+.splash.splash--cover {
+  --cover-gutter: clamp(28px, 7.5vw, 144px);
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  background: #82795e;
+}
+
+.splash--cover .splash-photo {
+  object-position: 50% center;
+}
+
+.splash--cover .splash-overlay {
+  /* One warm tint, with a steady falloff and a soft transparent tail. */
+  background: linear-gradient(
+    90deg,
+    rgba(239, 230, 209, .68) 0%,
+    rgba(239, 230, 209, .62) 10%,
+    rgba(239, 230, 209, .55) 20%,
+    rgba(239, 230, 209, .47) 30%,
+    rgba(239, 230, 209, .39) 40%,
+    rgba(239, 230, 209, .30) 50%,
+    rgba(239, 230, 209, .21) 60%,
+    rgba(239, 230, 209, .13) 70%,
+    rgba(239, 230, 209, .065) 80%,
+    rgba(239, 230, 209, .02) 90%,
+    rgba(239, 230, 209, 0) 100%
+  );
+}
+
+.splash--cover .splash-content {
+  left: var(--cover-gutter);
+  top: 32%;
+  width: 61%;
+  max-width: 900px;
+  color: #302b20;
+}
+
+.splash--cover h1 {
+  font-family: var(--editorial);
+  font-weight: 400;
+  font-size: clamp(70px, 7.15vw, 118px);
+  line-height: .99;
+  letter-spacing: -.018em;
+  text-wrap: balance;
+}
+
+.splash--cover h1 span {
+  display: block;
+  margin-top: 2px;
+}
+
+.splash--cover .splash-enter {
+  min-height: 60px;
+  gap: 48px;
+  margin-top: 20px;
+  margin-left: 0;
+  padding: 13px 0 11px;
+  border-color: #393124;
+  border-bottom-width: 1.5px;
+  color: #29251c;
+  font-size: clamp(20px, 1.4vw, 22px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .20em;
+}
+
+.splash--cover .splash-enter svg {
+  width: 28px;
+  height: 28px;
+}
+
+.splash--cover .splash-enter:hover {
+  gap: 60px;
+  border-color: #211d16;
+  color: #211d16;
+}
+
+@media (min-width: 1800px) {
+  .splash--cover .splash-content { top: 33%; }
+  .splash--cover h1 { font-size: 132px; }
+}
+
+@media (min-width: 701px) and (max-width: 1100px) {
+  .splash--cover .splash-content { top: 32%; width: 66%; }
+  .splash--cover h1 { font-size: clamp(66px, 7.4vw, 88px); }
+  .splash--cover .splash-enter { margin-top: 20px; }
+}
+
+@media (max-width: 700px) {
+  .splash.splash--cover {
+    --cover-gutter: 8vw;
+    min-height: 560px;
+  }
+
+  .splash--cover .splash-photo { object-position: 85% center; }
+
+  .splash--cover .splash-content {
+    top: 54%;
+    width: 87%;
+    max-width: 520px;
+  }
+
+  .splash--cover h1 {
+    font-size: clamp(49px, 12.6vw, 77px);
+    line-height: 1.02;
+    letter-spacing: -.025em;
+  }
+
+  .splash--cover h1 span { margin-top: 1px; }
+
+  .splash--cover .splash-enter {
+    min-height: 56px;
+    gap: 36px;
+    margin-top: 16px;
+    margin-left: 0;
+    font-size: 18px;
+    letter-spacing: .2em;
+  }
+
+  .splash--cover .splash-enter svg { width: 24px; height: 24px; }
+  .splash--cover .splash-enter:hover { gap: 44px; }
+
+}
+
+@media (min-width: 701px) and (max-width: 1100px) and (orientation: portrait) {
+  .splash--cover .splash-content { top: 48%; width: 85%; }
+}
+
+@media (max-width: 700px) and (max-height: 690px) {
+  .splash--cover .splash-content { top: 49%; }
+  .splash--cover h1 { font-size: clamp(45px, 11.7vw, 60px); }
+  .splash--cover .splash-enter { margin-top: 15px; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .splash.splash--cover { min-height: 360px; }
+  .splash--cover .splash-content { top: 22%; width: 70%; }
+  .splash--cover h1 { font-size: clamp(48px, 7.5vw, 74px); }
+  .splash--cover .splash-enter { margin-top: 16px; }
+}
+
+/* Scale the complete 16:9 source proportionally to fill the desktop viewport.
+   No extra zoom, manual source crop, or off-center positioning. */
+@media (min-width: 769px) {
+  .splash--cover .splash-photo {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: none;
+  }
+}

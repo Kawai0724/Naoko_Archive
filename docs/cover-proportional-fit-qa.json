@@ -1,0 +1,75 @@
+{
+  "build": "npm run build: passed",
+  "desktopRule": "Unmodified original 16:9 source scaled proportionally with object-fit:cover; centered; no additional zoom/offset. Full source visible on 16:9; other aspect ratios necessarily overflow edges to fill.",
+  "mobileUnchanged": true,
+  "checks": [
+    {
+      "fullSourceVisible": true,
+      "imageBox": [
+        1920,
+        1080
+      ],
+      "objectFit": "cover",
+      "overflow": false,
+      "position": "50% 50%",
+      "source": [
+        7680,
+        4320
+      ],
+      "transform": "none",
+      "viewport": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "objectFit": "cover",
+      "overflow": false,
+      "photoBox": [
+        1440,
+        900
+      ],
+      "position": "50% 50%",
+      "source": "http://127.0.0.1:4173/cover-hero-8k.webp",
+      "titleOverflow": false,
+      "transform": "none",
+      "viewport": [
+        1440,
+        900
+      ]
+    },
+    {
+      "objectFit": "cover",
+      "overflow": false,
+      "photoBox": [
+        1024,
+        768
+      ],
+      "position": "50% 50%",
+      "source": "http://127.0.0.1:4173/cover-hero-8k.webp",
+      "titleOverflow": false,
+      "transform": "none",
+      "viewport": [
+        1024,
+        768
+      ]
+    },
+    {
+      "objectFit": "cover",
+      "overflow": false,
+      "photoBox": [
+        390,
+        464
+      ],
+      "position": "85% 15%",
+      "source": "",
+      "titleOverflow": false,
+      "transform": "none",
+      "viewport": [
+        390,
+        844
+      ]
+    }
+  ],
+  "screenshot": "screenshots/cover-proportional-fit.jpg"
+}

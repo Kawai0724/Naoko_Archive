@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-20",
+  "pages": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/archive",
+      "status": 200
+    },
+    {
+      "path": "/about",
+      "status": 200
+    },
+    {
+      "path": "/discography",
+      "status": 200
+    },
+    {
+      "path": "/discography/album-1983",
+      "status": 200
+    },
+    {
+      "path": "/discography/daydream-coast",
+      "status": 200
+    },
+    {
+      "path": "/discography/halfmoon-serenade",
+      "status": 200
+    },
+    {
+      "path": "/discography/japan-as-waterscapes",
+      "status": 200
+    },
+    {
+      "path": "/discography/scarlet",
+      "status": 200
+    },
+    {
+      "path": "/discography/sky-park",
+      "status": 200
+    },
+    {
+      "path": "/photobooks",
+      "status": 200
+    },
+    {
+      "path": "/photobooks/liner-notes-study",
+      "status": 200
+    },
+    {
+      "path": "/photobooks/magazine-study",
+      "status": 200
+    },
+    {
+      "path": "/photobooks/paper-and-light",
+      "status": 200
+    },
+    {
+      "path": "/timeline",
+      "status": 200
+    },
+    {
+      "path": "/videos",
+      "status": 200
+    },
+    {
+      "path": "/videos/stage-index",
+      "status": 200
+    },
+    {
+      "path": "/videos/television-index",
+      "status": 200
+    },
+    {
+      "path": "/videos/conversation-index",
+      "status": 200
+    }
+  ],
+  "assets_checked": 43,
+  "asset_failures": [],
+  "empty_links": [],
+  "cover_copy_identical": true,
+  "browser_checks": {
+    "splash_breakpoints": [
+      "1440x900",
+      "1024x768",
+      "390x844"
+    ],
+    "navigation_enter": "passed",
+    "search_chinese_japanese_year": "passed",
+    "combined_year_type_filter": "passed",
+    "empty_state_reset": "passed",
+    "grid_list_switch": "passed",
+    "global_search_year_and_escape": "passed",
+    "mobile_menu_expand": "passed",
+    "gallery_next_previous": "passed",
+    "lightbox_arrow_keys_and_escape": "passed",
+    "mobile_menu_expand_close_keyboard": "passed",
+    "console_errors": "none observed",
+    "horizontal_overflow_mobile": {
+      "width": 390,
+      "routes_checked": 19,
+      "overflow_routes": 0,
+      "details": "docs/responsive-checks.json"
+    }
+  },
+  "typecheck": "passed",
+  "production_build": "passed"
+}

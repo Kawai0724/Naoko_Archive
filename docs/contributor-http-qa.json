@@ -1,0 +1,23 @@
+{
+  "checks": [
+    "blank draft",
+    "minimal submission",
+    "two tracks and multi-person credits",
+    "two editions and partial dates",
+    "private image persistence",
+    "draft preview isolation",
+    "private lyric and editor-note protection",
+    "reviewed public snapshot",
+    "edits isolated until approval",
+    "image authorization gate",
+    "optimistic concurrency",
+    "submit validation",
+    "recoverable deletion",
+    "API token and origin guard"
+  ],
+  "passed": true,
+  "database": "/private/tmp/naoko-contributor-qa (isolated QA only)",
+  "restartCheckPending": false,
+  "restartPersistencePassed": true,
+  "nonAdminApprovalBlocked": true
+}

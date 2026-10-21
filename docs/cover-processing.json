@@ -1,0 +1,43 @@
+{
+  "source": {
+    "path": "/Users/xiaowenli/Desktop/Xiaowen Li/network/cover2.png",
+    "width": 7680,
+    "height": 4320,
+    "bytes": 17298467,
+    "sha256": "148f1f6d5a9e46b589c4e10713d3f8e58e8456be195d09fdfb193a62bf6fe30a"
+  },
+  "outputs": [
+    {
+      "path": "public/cover-hero-8k.webp",
+      "width": 7680,
+      "height": 4320,
+      "bytes": 1313178
+    },
+    {
+      "path": "public/cover-hero-mobile.webp",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 462828
+    }
+  ],
+  "processing": "Format conversion only for desktop; Lanczos3 downscale for mobile. No generated pixels, face restoration, sharpening or color changes added.",
+  "sourcePreserved": true,
+  "userRequestedReplacement": "2026-10-21",
+  "portraitMobileCover": {
+    "source": "cover2.png",
+    "crop": {
+      "left": 2600,
+      "top": 0,
+      "width": 4400,
+      "height": 3900
+    },
+    "output": {
+      "path": "public/cover-mobile.jpg",
+      "width": 1800,
+      "height": 1595,
+      "bytes": 414132
+    },
+    "processing": "Non-generative crop/resize only; user requested smaller face and more lake/foliage. Trims lower dark area and far-right margin. Source untouched.",
+    "userChoice": "2026-10-21: user chose the existing autumn lake image instead of the unavailable stage photograph, then requested a smaller face and more background."
+  }
+}

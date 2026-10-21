@@ -1,0 +1,62 @@
+import { test, type TestContext } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync,rmSync,readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { AlbumStore,StoreError } from '../src/lib/album-store';
+import { emptyAlbum,emptyTrack,emptyEdition,emptyMedia,partialDate,submissionErrors,publicAlbum,uid,MAX_ALBUM_IMAGES } from '../src/lib/albums';
+import { localAllowed,sameLocalOrigin } from '../src/lib/local-policy';
+import { releases } from '../src/data/releases';
+function setup(t:TestContext){const directory=mkdtempSync(path.join(tmpdir(),'naoko-album-test-'));const store=new AlbumStore(directory);t.after(()=>{try{store.close();}catch{}rmSync(directory,{recursive:true,force:true});});return {store,directory};}
+test('legacy records import once without losing tracks or edition metadata',t=>{const {store,directory}=setup(t);assert.equal(store.list().length,releases.length);const a=store.get('legacy-sky-park')!;assert.deepEqual(a.tracks.map(t=>t.title),releases[1].tracks.map(t=>t.title));assert.equal(a.editions[0].label,releases[1].label);assert.equal(a.editions[0].format,null);assert.equal(a.editions[0].editionName,'待确认版本');store.close();const reopened=new AlbumStore(directory);assert.equal(reopened.list().length,6);reopened.close();});
+test('blank drafts persist across database reopen; minimal title and artist can submit',t=>{const {store,directory}=setup(t);let a=store.save({...emptyAlbum(),artist:''},'draft');assert.equal(a.title,'');assert.throws(()=>store.save(a,'submit',a.id,a.revision),/专辑标题/);a=store.save({...a,title:'TEST — Minimal',artist:'河合奈保子'},'submit',a.id,a.revision);assert.equal(a.status,'pending-review');assert.equal(store.published().length,6);store.close();const reopened=new AlbumStore(directory);assert.equal(reopened.get(a.id)?.title,'TEST — Minimal');assert.equal(reopened.get(a.id)?.status,'pending-review');reopened.close();});
+test('two tracks, multi-person credits, multiline private lyrics and two editions survive',t=>{const {store}=setup(t);const a=emptyAlbum();a.title='TEST — Tracks';const first=emptyTrack(1),second=emptyTrack(2);first.title='TEST One';second.title='TEST Two';second.composers=[{id:'p1',name:'Test person A'},{id:'p2',name:'Test person B'}];second.lyricists=[{id:'l1',name:'Test writer A'},{id:'l2',name:'Test writer B'}];second.lyricsText='PRIVATE-LINE-ONE\n\nPRIVATE-LINE-TWO';a.tracks=[first,second];a.firstReleaseDate=partialDate('1987');a.editions=[{...emptyEdition(),label:'Test label A',catalogNumber:'TEST-A-01'},{...emptyEdition(),label:'Test label B',catalogNumber:'TEST-B-02'}];let saved=store.save(a,'submit');assert.equal(saved.firstReleaseDate?.precision,'year');assert.deepEqual(saved.tracks[1].composers,second.composers);assert.equal(saved.tracks[1].lyricsText,second.lyricsText);assert.throws(()=>store.transition(saved.id,'approve',saved.revision,false),e=>e instanceof StoreError&&e.status===403);saved=store.transition(saved.id,'approve',saved.revision,true);const view=store.published().find(a=>a.id===saved.id)!;assert.equal(view.editions.length,2);assert.equal(view.tracks[1].lyricsText,null);assert.equal(view.tracks[1].hasPrivateLyrics,true);assert.ok(!JSON.stringify(view).includes('PRIVATE-LINE'));assert.ok(!('editorNotes' in view));});
+test('published edits cannot overwrite public snapshot until a second review',t=>{const {store}=setup(t);let a=store.get('legacy-scarlet')!;const old=a.title;a=store.save({...a,title:'TEST — Changed Scarlet'},'draft',a.id,a.revision);assert.equal(store.published().find(p=>p.id===a.id)?.title,old);a=store.save(a,'submit',a.id,a.revision);assert.equal(store.published().find(p=>p.id===a.id)?.title,old);a=store.transition(a.id,'reject',a.revision,true);assert.equal(a.status,'draft');a=store.save(a,'submit',a.id,a.revision);store.transition(a.id,'approve',a.revision,true);assert.equal(store.published().find(p=>p.id===a.id)?.title,'TEST — Changed Scarlet');assert.ok(store.revisions(a.id).some(r=>r.snapshot.title===old));});
+test('submission checks partial dates, URLs, names; drafts retain incomplete values',t=>{const {store}=setup(t);const a=emptyAlbum();a.title='TEST';a.tracks=[emptyTrack(1)];a.firstReleaseDate=partialDate('1987-02-30');a.editions=[{...emptyEdition(),purchaseLinks:[{id:'link1',merchantName:'',url:'javascript:alert(1)',note:null}]}];assert.ok(submissionErrors(a).length>=3);const draft=store.save(a,'draft');assert.throws(()=>store.save(draft,'submit',draft.id,draft.revision));assert.equal(store.get(draft.id)?.firstReleaseDate?.value,'1987-02-30');});
+test('optimistic concurrency rejects stale writes; deleted drafts can restore with history',t=>{const {store}=setup(t);let a=store.save(emptyAlbum(),'draft');const stale=a; a=store.save({...a,title:'TEST saved'},'draft',a.id,a.revision);assert.throws(()=>store.save(stale,'draft',a.id,stale.revision),e=>e instanceof StoreError&&e.status===409);a=store.transition(a.id,'delete',a.revision,false);assert.ok(a.deletedAt);a=store.transition(a.id,'restore',a.revision,false);assert.equal(a.deletedAt,null);assert.equal(a.title,'TEST saved');assert.equal(store.revisions(a.id).length,4);});
+const imageBytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=','base64');
+const images=(count:number)=>Array.from({length:count},(_,i)=>({name:`image-${i+1}.png`,bytes:imageBytes}));
+test('private image is persistent but never public until licensed and approved; ownership enforced',t=>{
+  const {store}=setup(t);let a=store.attachImages({...emptyAlbum(),title:'TEST media'},images(1),undefined,0,undefined,'cover');
+  const m=a.media[0],storageKey=m.storageKey!;
+  a=store.save(a,'submit',a.id,a.revision);a=store.transition(a.id,'approve',a.revision,true);
+  assert.equal(store.published().find(p=>p.id===a.id)?.media.length,0);
+  assert.equal(store.file(storageKey).bytes.length,imageBytes.length);
+  const other=store.save(emptyAlbum(),'draft');assert.throws(()=>store.save({...other,media:[m]},'draft',other.id,other.revision),/引用无效/);
+  a=store.save({...a,media:[{...m,rightsStatus:'licensed-public',publicationConfirmed:true}]},'submit',a.id,a.revision);a=store.transition(a.id,'approve',a.revision,true);
+  const view=publicAlbum(a);assert.equal(view.media.length,1);assert.ok(!JSON.stringify(view).includes('storageKey'));assert.ok(!JSON.stringify(view).includes(storageKey));
+  assert.throws(()=>store.attachImages(a,[{name:'unsafe.svg',bytes:Buffer.from('<svg>unsafe</svg>')}],a.id,a.revision),/仅支持/);assert.throws(()=>store.file('../archive.sqlite'));
+});
+test('six covers and lyric sheets can upload together; a seventh is rejected before writing',t=>{
+  const {store,directory}=setup(t);let a=store.attachImages({...emptyAlbum(),title:'Six image QA'},images(1),undefined,0,undefined,'cover');
+  a=store.attachImages(a,images(5),a.id,a.revision,undefined,'scan');assert.equal(a.media.length,MAX_ALBUM_IMAGES);
+  assert.equal(a.media[0].type,'cover');assert.equal(a.media[5].type,'scan');assert.ok(a.media.every(m=>m.rightsStatus==='private'&&!m.publicationConfirmed));
+  const revision=a.revision,files=readdirSync(path.join(directory,'private-media'));
+  assert.throws(()=>store.attachImages(a,images(1),a.id,a.revision),/最多提交 6/);
+  assert.throws(()=>store.save({...a,media:[...a.media,{...emptyMedia(a.id),type:'scan'}]},'draft',a.id,a.revision),/最多提交 6/);
+  assert.deepEqual(readdirSync(path.join(directory,'private-media')),files);assert.equal(store.get(a.id)?.revision,revision);
+  store.close();const reopened=new AlbumStore(directory);assert.equal(reopened.get(a.id)?.media.length,6);assert.deepEqual(reopened.file(a.media[5].storageKey!).bytes,imageBytes);reopened.close();
+});
+test('replacement works at capacity; removing an image frees a slot and old approved file remains intact',t=>{
+  const {store}=setup(t);let a=store.attachImages({...emptyAlbum(),title:'Replacement QA'},images(6),undefined,0,undefined,'cover');
+  a=store.save({...a,media:a.media.map(m=>({...m,rightsStatus:'licensed-public',publicationConfirmed:true}))},'submit',a.id,a.revision);a=store.transition(a.id,'approve',a.revision,true);
+  const oldKey=a.media[0].storageKey!,oldId=a.media[0].id;
+  a=store.attachImages(a,[{name:'replacement.png',bytes:imageBytes}],a.id,a.revision,oldId);
+  assert.equal(a.media.length,6);assert.equal(a.media[0].id,oldId);assert.notEqual(a.media[0].storageKey,oldKey);
+  assert.equal(a.media[0].rightsStatus,'private');assert.equal(a.media[0].publicationConfirmed,false);
+  assert.equal(store.publishedRaw(a.id)?.media[0].storageKey,oldKey);assert.deepEqual(store.file(oldKey).bytes,imageBytes);
+  a=store.save({...a,media:a.media.slice(1)},'draft',a.id,a.revision);a=store.attachImages(a,images(1),a.id,a.revision,undefined,'scan');assert.equal(a.media.length,6);
+  const audio={...emptyMedia(a.id),id:uid()};a=store.save({...a,media:[...a.media,audio]},'draft',a.id,a.revision);assert.equal(a.media.length,7);assert.equal(a.media.filter(m=>m.type!=='audio').length,6);
+});
+test('invalid batch and stale image upload roll back files, draft and history together',t=>{
+  const {store,directory}=setup(t);const before=store.list().length;
+  assert.throws(()=>store.attachImages(emptyAlbum(),[...images(1),{name:'bad.png',bytes:Buffer.from('not an image')}]),/仅支持/);
+  assert.equal(store.list().length,before);assert.equal(readdirSync(path.join(directory,'private-media')).length,0);
+  assert.throws(()=>store.attachImages(emptyAlbum(),images(7)),/1–6/);
+  let a=store.attachImages(emptyAlbum(),images(1));const stale=a;a=store.save({...a,title:'Updated'},'draft',a.id,a.revision);
+  const revisions=store.revisions(a.id).length,files=readdirSync(path.join(directory,'private-media'));
+  assert.throws(()=>store.attachImages(stale,images(1),a.id,stale.revision),e=>e instanceof StoreError&&e.status===409);
+  assert.equal(store.revisions(a.id).length,revisions);assert.deepEqual(readdirSync(path.join(directory,'private-media')),files);
+});
+test('local policy blocks production and non-loopback hosts',()=>{assert.equal(localAllowed('127.0.0.1:3000','development'),true);assert.equal(localAllowed('localhost:3000','production'),false);assert.equal(localAllowed('example.com','development'),false);assert.equal(localAllowed('localhost.evil.test','development'),false);assert.equal(localAllowed('127.0.0.1@evil.test','development'),false);});
+test('same-origin uses validated Host when Next normalizes its request URL',()=>{assert.equal(sameLocalOrigin('127.0.0.1:3011','http:','http://127.0.0.1:3011'),true);assert.equal(sameLocalOrigin('127.0.0.1:3011','http:','https://evil.test'),false);assert.equal(sameLocalOrigin('localhost:3011','http:','http://localhost:3011'),true);});

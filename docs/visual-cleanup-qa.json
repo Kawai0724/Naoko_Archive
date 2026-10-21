@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "tests": "24 passed",
+  "build": "passed",
+  "browser": [
+    "five editing sections remain usable",
+    "existing-track selector retained",
+    "save draft succeeds",
+    "existing notes and lyrics preserved after save",
+    "record notes sidebar removed",
+    "remarks fields removed",
+    "revision history collapsed",
+    "mobile 390x844 and 360x800 without horizontal page overflow",
+    "version catalog retains cover and actions",
+    "public detail has no inactive listening panel",
+    "public catalog removes redundant explanations"
+  ],
+  "realLocalServer": "3000 responds with updated new album page",
+  "preserved": [
+    "src/app/page.tsx",
+    "src/app/splash.css",
+    "src/app/mobile-cover.css",
+    "src/app/community.css",
+    "src/app/(site)/archive/page.tsx",
+    "src/app/archive-index.css",
+    "src/app/(site)/about/page.tsx"
+  ],
+  "screenshots": [
+    "screenshots/visual-cleanup-audio-desktop.png",
+    "screenshots/visual-cleanup-audio-mobile.png"
+  ]
+}

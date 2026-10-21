@@ -1,0 +1,74 @@
+{
+  "build": "passed",
+  "desktop1440": {
+    "splashCssUnchanged": true,
+    "communityCssUnchanged": true,
+    "mobileStylesInactive": true,
+    "photoUnchanged": true
+  },
+  "bilingualCopyUnchanged": true,
+  "asset": {
+    "source": "cover2.png",
+    "crop": {
+      "left": 2600,
+      "top": 0,
+      "width": 4400,
+      "height": 3900
+    },
+    "output": {
+      "path": "public/cover-mobile.jpg",
+      "width": 1800,
+      "height": 1595,
+      "bytes": 414132
+    },
+    "processing": "Non-generative crop/resize only; user requested smaller face and more lake/foliage. Trims lower dark area and far-right margin. Source untouched.",
+    "userChoice": "User selected autumn lake photograph and requested less face magnification, more foliage and lake."
+  },
+  "photoViewportChecks": [
+    {
+      "viewport": "360x800",
+      "photoHeight": 440,
+      "visibleSourceRect": {
+        "left": 420,
+        "top": 0,
+        "width": 1305,
+        "height": 1595
+      }
+    },
+    {
+      "viewport": "390x844",
+      "photoHeight": 464,
+      "visibleSourceRect": {
+        "left": 390,
+        "top": 0,
+        "width": 1341,
+        "height": 1595
+      }
+    },
+    {
+      "viewport": "430x932",
+      "photoHeight": 513,
+      "visibleSourceRect": {
+        "left": 393,
+        "top": 0,
+        "width": 1337,
+        "height": 1595
+      }
+    },
+    {
+      "viewport": "768x1024",
+      "photoHeight": 563,
+      "visibleSourceRect": {
+        "left": 0,
+        "top": 41,
+        "width": 1800,
+        "height": 1320
+      }
+    }
+  ],
+  "photoViewportProof": "docs/screenshots/mobile-crop-checks.jpg",
+  "browserVisualChecks": "Incomplete. Repeated native Chrome focus interruptions and input/navigation failures prevented full-page viewport checks. Photo crops were independently checked using the actual CSS object-fit geometry; these are not browser screenshots.",
+  "status": "implemented",
+  "sourceBaseline": "97cf2d35ee39e50fc7202691645fb697270825dc",
+  "publication": "See deployment receipt outside source checkout."
+}

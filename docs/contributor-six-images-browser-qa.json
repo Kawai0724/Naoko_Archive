@@ -1,0 +1,30 @@
+{
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "addDisabled": true,
+      "horizontalOverflow": false,
+      "images": 6
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "addDisabled": true,
+      "horizontalOverflow": false,
+      "images": 6
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "addDisabled": true,
+      "horizontalOverflow": false,
+      "images": 6
+    }
+  ],
+  "restartRetainedSixImages": true,
+  "privatePreviewLoaded": true,
+  "addDisabledAtSix": true,
+  "replacementEnabledAtSix": true,
+  "automaticFilePicker": "Previously blocked by Chrome extension file URL permission; actual multipart upload tested separately."
+}

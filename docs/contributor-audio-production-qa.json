@@ -1,0 +1,25 @@
+{
+  "productionGuards": [
+    {
+      "path": "/contributor/albums/new",
+      "status": 404
+    },
+    {
+      "path": "/api/contributor/audio/a9d12afc-dc84-46ea-a74c-cf76d9989df3.m4a",
+      "status": 404
+    },
+    {
+      "path": "/api/contributor/albums/fb67890c-ea92-4724-a8cc-d27c51480ec9/audio",
+      "status": 404
+    }
+  ],
+  "passed": true,
+  "privateDataOrTestAudioBundled": false,
+  "tests": {
+    "passed": 19,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "deployed": false
+}

@@ -1,0 +1,15 @@
+import type { Release } from '@/lib/types';
+const source = { sourceUrl: 'https://columbia.jp/kawai/list.html', sourceLabel: '日本哥伦比亚 · 河合奈保子全曲目录', isDemo: false };
+const makeRelease = (item: Omit<Release, 'tracks' | 'media' | 'label' | 'catalogNumber' | 'coverAlt' | 'isDemo'> & { songs: string[] }): Release => {
+  const { songs, ...rest } = item;
+  return { ...source, ...rest, label: '日本コロムビア', catalogNumber: null, coverAlt: `${item.title} — 原创排版封面，非原版唱片封面`, tracks: songs.map((title, i) => ({ number: i + 1, title, duration: null })), media: [{ id: `${item.slug}-audio`, type: 'audio', rightsStatus: 'metadata-only', isDemo: false }] };
+};
+export const releases: Release[] = [
+  makeRelease({ slug:'album-1983', title:'あるばむ', titleZh:'相册', year:1983, releaseDate:'1983-01-21', type:'album', cover:'/placeholders/album.svg', description:'从《Invitation》翻开这一页。以日文原曲名与初次发行记录为线索，重新阅读一张唱片。中文名称仅作浏览辅助。', songs:['Invitation','ダブル・デイト','追跡','砂の傷あと','けんかをやめて','浅い夢','ささやかなイマジネーション','惑（まど）いの風景','オレンジ通り５番街(振り向いてアベニュー)','恋ならば少し…'] }),
+  makeRelease({ slug:'sky-park', title:'SKY PARK', titleZh:'天空公园', year:1983, releaseDate:'1983-06-01', type:'album', cover:'/placeholders/sky-park.svg', description:'六月发行的一页夏日记录。十首作品，从《ちょっぴりパッショネイト》到同名曲《Sky Park》，在目录中慢慢展开。中文名称为本站辅助译名。', songs:['ちょっぴりパッショネイト','恋のハレーション','アリバイ','八月のバレンタイン','まどろみスケッチ','恋人形','Dreamy Sailing','初めての疑惑','レモネード・サンバ','Sky Park'] }),
+  makeRelease({ slug:'daydream-coast', title:'DAYDREAM COAST', titleZh:'白日梦海岸', year:1984, releaseDate:'1984-08-28', type:'album', cover:'/placeholders/daydream-coast.svg', description:'把目光移向海岸。全英文曲名构成的十首作品，为这份年代目录留下一段不同的声音坐标。中文名称为本站辅助译名。', songs:['IF YOU WANT ME','SECOND NATURE','LIVE INSIDE YOUR LOVE','I LOVE IT','ANGELA','WHAT COMES AROUND GOES AROUND','LOVE ASSISTANT','WISDOM RIDE','HOME AGAIN, ALONE AGAIN','AS LONG AS WE’RE DREAMING'] }),
+  makeRelease({ slug:'scarlet', title:'Scarlet', titleZh:'绯色', year:1986, releaseDate:'1986-10-21', type:'album', cover:'/placeholders/scarlet.svg', description:'深秋的唱片页。《ハーフムーン・セレナーデ》与另外九首作品一起，构成这张发行于 1986 年的专辑。中文名称为本站辅助译名。', songs:['スウィート・ロンリネス','雨のプールサイド','ロードサイド・ダイナー','ヘミングウェイのダンスホール','想い出のコニーズ・アイランド','夢みるコーラス・ガール','緋の少女','ムーンライト急行','クラブ・ティーンネイジ','ハーフムーン・セレナーデ'] }),
+  makeRelease({ slug:'japan-as-waterscapes', title:'JAPAN as waterscapes', titleZh:'水之风景', year:1987, releaseDate:'1987-06-24', type:'album', cover:'/placeholders/waterscapes.svg', description:'水、季节与风景组成一份可阅读的曲目地图。此处按官方目录列出曲目；两首器乐曲注明为 CD 版收录。中文名称为本站辅助译名。', songs:['水の四季','桜の闇に振り向けば','夏の左岸、冬の右岸','海の中の星座','終夜の螢','水無月の少女たちに（インスト）〔CD 版〕','砂の舟、草の舟','黒髪にアマリリス','十六夜物語','霧の降る夕闇','晩夏に人を愛すると','水辺の風景（インスト）〔CD 版〕'] }),
+  makeRelease({ slug:'halfmoon-serenade', title:'ハーフムーン・セレナーデ', titleZh:'半月小夜曲', year:1986, releaseDate:'1986-11-02', type:'single', cover:'/placeholders/halfmoon.svg', description:'一张单曲的两面：以原始发行日期、日文曲名与官方目录为起点。中文名称为本站辅助译名。', songs:['ハーフムーン・セレナーデ','SENTIMENTAL SUGAR RAIN'] }),
+];
+export const releaseTypeLabel = { album:'专辑', single:'单曲', ep:'EP', compilation:'精选集', live:'现场专辑', other:'其他' };

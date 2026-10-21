@@ -1,0 +1,97 @@
+{
+  "build": "npm run build: passed",
+  "browser": "Chrome",
+  "responsive": [
+    {
+      "viewport": [
+        360,
+        800
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    },
+    {
+      "viewport": [
+        430,
+        932
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    },
+    {
+      "viewport": [
+        768,
+        1024
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    },
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "horizontalOverflow": false,
+      "titleOverflow": false,
+      "chineseDescriptionsVisible": true,
+      "mainImages": 0
+    }
+  ],
+  "routes": [
+    {
+      "label": "Albums",
+      "destination": "/discography/",
+      "heading": "唱片目录",
+      "clicked": true
+    },
+    {
+      "label": "Photographs",
+      "destination": "/photobooks/",
+      "heading": "写真与印刷物",
+      "clicked": true
+    },
+    {
+      "label": "Films",
+      "destination": "/videos/",
+      "heading": "影像档案",
+      "clicked": true
+    },
+    {
+      "label": "Timeline",
+      "destination": "/timeline/",
+      "heading": "沿着时间，重听",
+      "clicked": true
+    }
+  ],
+  "screenshots": [
+    "screenshots/archive-index-desktop.jpg",
+    "screenshots/archive-index-mobile.jpg"
+  ],
+  "scope": "Only /archive typography and scoped stylesheet; Splash, Credits and category pages unchanged."
+}
