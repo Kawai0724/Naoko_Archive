@@ -1,10 +1,10 @@
 {
-  "testedAt": "2026-10-21T16:41:51.196Z",
+  "testedAt": "2026-10-21T16:46:21.000Z",
   "isolatedDatabase": true,
   "checks": [
     "legacy private media needs no per-file approval flags",
-    "approved image reads successfully",
-    "FLAC playback range 206 matches bytes",
+    "approved image shared with approved non-owner member; anonymous 401",
+    "approved-member FLAC range 206 matches bytes; anonymous/forged 401, pending 403",
     "download disposition and bytes correct",
     "invalid range 416",
     "draft and cross-album media 404",
