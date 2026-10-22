@@ -61,3 +61,19 @@
   .catalog-discography.catalog-list .catalog-card-copy{padding-right:23px}
   .catalog-discography.catalog-list .catalog-card h2{font-size:26px}
 }
+
+/* Record catalogue: title first, release details beneath, four across. */
+.catalog-discography.catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 24px}
+.catalog-discography .catalog-card h2{font-size:clamp(26px,2.2vw,32px);margin:0 0 12px}
+.catalog-discography .catalog-card-year{font-size:20px}
+.catalog-discography .catalog-card-category{font-size:16px}
+.catalog-discography .catalog-card-meta i{font-size:16px}
+@media(max-width:768px){
+ .catalog-discography.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 18px}
+}
+@media(max-width:700px){
+ .catalog-discography .catalog-card h2{font-size:clamp(24px,6vw,30px);margin:0 0 10px}
+ .catalog-discography .catalog-card-year{font-size:18px}
+ .catalog-discography .catalog-card-category{font-size:14px}
+ .catalog-discography .catalog-card-meta i{font-size:14px}
+}
