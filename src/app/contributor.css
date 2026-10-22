@@ -92,3 +92,17 @@
 
 .access-form .access-remember{font-size:14px;align-items:center}
 .access-form .access-remember input{margin-top:0}
+
+/* Account details use the same open forms and fine rules as the editor. */
+.account-settings{max-width:760px}
+.account-identity{padding:8px 0 32px;overflow-wrap:anywhere}
+.account-summary strong{font-weight:500;font-size:26px;line-height:1.4}
+.account-handle{font-size:14px;color:var(--muted);margin-top:8px}
+.account-profile,.account-password{border-top:1px solid var(--line);padding:32px 0 40px}
+.account-settings .editor-section h2{font-family:var(--serif);font-size:28px;line-height:1.4}
+.account-settings .access-form{max-width:560px;margin-top:24px}
+.account-settings .editor-message{margin:0}
+.account-closure summary{font-family:var(--serif);font-size:22px;cursor:pointer}
+.account-closure details>p{font-size:14px;line-height:1.8;margin-top:18px;max-width:560px}
+.contributor-account a{max-width:220px;overflow-wrap:anywhere;white-space:normal}
+@media(max-width:600px){.account-summary{flex-wrap:wrap;gap:12px}.account-summary strong{font-size:24px}.contributor-account a{max-width:160px}.account-settings h1{font-size:52px}}

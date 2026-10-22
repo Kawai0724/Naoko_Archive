@@ -70,3 +70,11 @@
 .header-desktop-nav a[aria-current=page]{font-weight:500}
 .header-actions .header-search-trigger{font-family:var(--serif);font-weight:500;letter-spacing:.06em;background:rgba(237,232,222,.82);border-color:rgba(117,108,94,.38)}
 .header-actions .header-search-trigger:hover{background:rgba(229,222,209,.94);border-color:rgba(75,75,65,.54)}
+
+/* Personal account joins the existing header actions. */
+.header-actions{gap:20px}
+.header-account-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;font-family:var(--serif);font-size:18px;letter-spacing:.04em;white-space:nowrap}
+.header-account-link:hover{color:var(--forest)}
+.header-account-link>svg{flex-shrink:0}
+@media(max-width:1200px){.header-main{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand actions" "nav nav";row-gap:8px;padding-top:17px;padding-bottom:10px}.header-desktop-nav{justify-content:space-between;gap:18px;width:100%}}
+@media(max-width:600px){.header-actions{gap:8px}.header-account-link{width:32px}.header-account-link>span{display:none}.header-brand>span{font-size:clamp(18px,5vw,22px);letter-spacing:1.2px}}

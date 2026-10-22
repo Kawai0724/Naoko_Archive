@@ -1,0 +1,16 @@
+{
+  "testedAt": "2026-10-22T00:57:43.150Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "personal account header and guest sign-in route",
+    "profile GET/PATCH require a real session and correct origin",
+    "nickname/biography save privately, with immutable login username and role",
+    "foreign user ID and role/username modification rejected, including administrator requests",
+    "invalid types and length/control-character limits enforced",
+    "wrong current password, mismatched confirmation and weak new password rejected",
+    "password change clears Cookie and all own sessions; other user unaffected",
+    "old password fails, new password works; profile and new hash survive actual application restart",
+    "pending member can edit own profile but cannot access albums",
+    "public member page does not expose private biography"
+  ]
+}

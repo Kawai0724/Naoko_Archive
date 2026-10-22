@@ -3,6 +3,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { StoreError } from './album-store';
 export type AccountStatus='pending'|'approved'|'rejected';
 export type ContributorUser={id:string;username:string;role:'admin'|'contributor';accountStatus:AccountStatus};
+export type AccountProfile={username:string;nickname:string;bio:string;role:'admin'|'contributor';accountStatus:AccountStatus};
 type UserRow=ContributorUser&{password_hash:string;disabled:number};
 export const SESSION_SECONDS=8*60*60;
 export const REMEMBER_SESSION_SECONDS=30*24*60*60;
@@ -34,6 +35,8 @@ export class IdentityStore{
       if(!columns.some(c=>c.name==='approval_status'))db.exec("ALTER TABLE contributor_users ADD COLUMN approval_status TEXT NOT NULL DEFAULT 'approved' CHECK(approval_status IN ('pending','approved','rejected'))");
       db.exec(`CREATE TABLE IF NOT EXISTS contributor_applications(user_id TEXT PRIMARY KEY REFERENCES contributor_users(id),reason TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),admin_note TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,reviewed_at INTEGER,reviewer_id TEXT,revision INTEGER NOT NULL DEFAULT 1);`);
       if(!columns.some(c=>c.name==='closed_at'))db.exec('ALTER TABLE contributor_users ADD COLUMN closed_at INTEGER');
+      if(!columns.some(c=>c.name==='nickname'))db.exec("ALTER TABLE contributor_users ADD COLUMN nickname TEXT NOT NULL DEFAULT ''");
+      if(!columns.some(c=>c.name==='bio'))db.exec("ALTER TABLE contributor_users ADD COLUMN bio TEXT NOT NULL DEFAULT ''");
       db.exec(`CREATE TABLE IF NOT EXISTS contributor_admin_applications(user_id TEXT PRIMARY KEY REFERENCES contributor_users(id),reason TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),admin_note TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,reviewed_at INTEGER,reviewer_id TEXT,revision INTEGER NOT NULL DEFAULT 1);`);
       db.exec('COMMIT');
     }catch(e){db.exec('ROLLBACK');throw e;}
@@ -76,6 +79,29 @@ export class IdentityStore{
     return u?publicUser(u):null;
   }
   logout(token:string|undefined){if(token)this.db.prepare('DELETE FROM contributor_sessions WHERE token_hash=?').run(digest(token));}
+  profile(user:ContributorUser):AccountProfile{
+    const row=this.db.prepare('SELECT username,nickname,bio,role,approval_status AS accountStatus FROM contributor_users WHERE id=? AND disabled=0 AND closed_at IS NULL').get(user.id) as AccountProfile|undefined;
+    if(!row)throw new StoreError('请重新登录',401);return {...row};
+  }
+  updateProfile(user:ContributorUser,nickname:string,bio:string){
+    if(typeof nickname!=='string'||typeof bio!=='string'||nickname.trim().length>30||bio.trim().length>500||/[\x00-\x1f\x7f]/.test(nickname)||bio.includes('\0'))throw new StoreError('昵称最多 30 个字符，简介最多 500 个字符');
+    this.db.exec('BEGIN IMMEDIATE');try{
+      this.profile(user);this.db.prepare('UPDATE contributor_users SET nickname=?,bio=? WHERE id=?').run(nickname.trim(),bio.trim(),user.id);
+      this.audit(user,'update-own-profile',user.id);const profile=this.profile(user);this.db.exec('COMMIT');return profile;
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
+  changePassword(user:ContributorUser,currentPassword:string,newPassword:string){
+    if(typeof currentPassword!=='string'||currentPassword.length>256||typeof newPassword!=='string'||newPassword.length<12||newPassword.length>256)throw new StoreError('新密码需要 12–256 个字符');
+    this.limit(`change-password:${user.id}`);
+    this.db.exec('BEGIN IMMEDIATE');try{
+      this.profile(user);const target=this.db.prepare('SELECT password_hash FROM contributor_users WHERE id=?').get(user.id) as {password_hash:string};
+      if(!matchesPassword(currentPassword,target.password_hash))throw new StoreError('当前密码不正确',401);
+      if(currentPassword===newPassword)throw new StoreError('新密码不能与当前密码相同');
+      const hash=hashPassword(newPassword);this.db.prepare('UPDATE contributor_users SET password_hash=? WHERE id=?').run(hash,user.id);
+      this.db.prepare('DELETE FROM contributor_sessions WHERE user_id=?').run(user.id);
+      this.audit(user,'change-own-password',user.id);this.db.exec('COMMIT');
+    }catch(e){this.db.exec('ROLLBACK');throw e;}
+  }
   requireAdmin(user:ContributorUser){if(!this.db.prepare("SELECT id FROM contributor_users WHERE id=? AND role='admin' AND disabled=0 AND approval_status='approved'").get(user.id))throw new StoreError('仅管理员可操作',403);}
   invite(user:ContributorUser){
     this.requireAdmin(user);const id=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=Date.now()+7*86400000;
