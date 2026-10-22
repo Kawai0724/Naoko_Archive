@@ -1,0 +1,15 @@
+{
+  "testedAt": "2026-10-22T00:39:16.016Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "default/unchecked login has matching 8-hour Cookie and database expiry",
+    "checked login has matching 30-day Cookie and database expiry; arbitrary maxAge ignored",
+    "Cookie HttpOnly and SameSite=Strict; HTTPS Secure separately unit-tested",
+    "non-boolean rememberMe rejected without session cookie",
+    "wrong password does not create remembered session",
+    "authenticated login page redirects to workbench",
+    "all sessions survive a real application restart",
+    "logout clears cookie and server session immediately",
+    "login form contains optional 30-day checkbox"
+  ]
+}

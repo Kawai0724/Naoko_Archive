@@ -5,6 +5,7 @@ export type AccountStatus='pending'|'approved'|'rejected';
 export type ContributorUser={id:string;username:string;role:'admin'|'contributor';accountStatus:AccountStatus};
 type UserRow=ContributorUser&{password_hash:string;disabled:number};
 export const SESSION_SECONDS=8*60*60;
+export const REMEMBER_SESSION_SECONDS=30*24*60*60;
 const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
 export function hashPassword(password:string){
   if(password.length<12||password.length>256)throw new StoreError('密码需要 12–256 个字符');
@@ -55,19 +56,19 @@ export class IdentityStore{
     this.db.prepare('INSERT INTO contributor_limits VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1').run(key,now+window);
     if((this.db.prepare('SELECT count FROM contributor_limits WHERE key=?').get(key) as {count:number}).count>max)throw new StoreError('尝试次数过多，请稍后再试',429);
   }
-  login(username:string,password:string){
+  login(username:string,password:string,rememberMe=false){
     if(username.length>40||password.length>256)throw new StoreError('用户名或密码不正确',401);
     this.limit('login:total',200);this.limit(`login:${username.toLowerCase()}`);
     const u=this.db.prepare('SELECT *,approval_status AS accountStatus FROM contributor_users WHERE username=?').get(username) as UserRow|undefined;
     const valid=matchesPassword(password,u?.password_hash??'00000000000000000000000000000000:'+ '00'.repeat(64));
     if(!u||u.disabled||!valid)throw new StoreError('用户名或密码不正确',401);
-    this.db.prepare('DELETE FROM contributor_limits WHERE key=?').run(`login:${username.toLowerCase()}`);return this.createSession(u);
+    this.db.prepare('DELETE FROM contributor_limits WHERE key=?').run(`login:${username.toLowerCase()}`);return this.createSession(u,rememberMe);
   }
-  createSession(user:ContributorUser){
-    const token=randomBytes(32).toString('base64url');
+  createSession(user:ContributorUser,rememberMe=false){
+    const token=randomBytes(32).toString('base64url'),maxAge=rememberMe===true?REMEMBER_SESSION_SECONDS:SESSION_SECONDS;
     this.db.prepare('DELETE FROM contributor_sessions WHERE expires_at<=?').run(Date.now());
-    this.db.prepare('INSERT INTO contributor_sessions VALUES(?,?,?)').run(digest(token),user.id,Date.now()+SESSION_SECONDS*1000);
-    return {token,user:publicUser(user)};
+    this.db.prepare('INSERT INTO contributor_sessions VALUES(?,?,?)').run(digest(token),user.id,Date.now()+maxAge*1000);
+    return {token,user:publicUser(user),maxAge};
   }
   session(token:string|undefined):ContributorUser|null{
     if(!token||!/^[\w-]{43}$/.test(token))return null;
