@@ -1,0 +1,111 @@
+{
+  "checks": [
+    {
+      "backgroundDisplay": "none",
+      "decorative": true,
+      "filter": "grayscale(1) brightness(1.08) contrast(0.93)",
+      "foregroundAbove": true,
+      "foregroundOpacity": "1",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "edition",
+      "pointerEvents": "none",
+      "sameCover": true,
+      "width": 360
+    },
+    {
+      "backgroundDisplay": "none",
+      "decorative": true,
+      "filter": "grayscale(1) brightness(1.08) contrast(0.93)",
+      "foregroundAbove": true,
+      "foregroundOpacity": "1",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "edition",
+      "pointerEvents": "none",
+      "sameCover": true,
+      "width": 390
+    },
+    {
+      "backgroundDisplay": "none",
+      "decorative": true,
+      "filter": "grayscale(1) brightness(1.08) contrast(0.93)",
+      "foregroundAbove": true,
+      "foregroundOpacity": "1",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "edition",
+      "pointerEvents": "none",
+      "sameCover": true,
+      "width": 430
+    },
+    {
+      "backgroundDisplay": "none",
+      "decorative": true,
+      "filter": "grayscale(1) brightness(1.08) contrast(0.93)",
+      "foregroundAbove": true,
+      "foregroundOpacity": "1",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "edition",
+      "pointerEvents": "none",
+      "sameCover": true,
+      "width": 768
+    },
+    {
+      "backgroundDisplay": "block",
+      "decorative": true,
+      "filter": "grayscale(1) brightness(1.08) contrast(0.93)",
+      "foregroundAbove": true,
+      "foregroundOpacity": "1",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "edition",
+      "pointerEvents": "none",
+      "sameCover": true,
+      "width": 1440
+    },
+    {
+      "backgroundDisplay": "none",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "album",
+      "sameFirstCover": true,
+      "width": 360
+    },
+    {
+      "backgroundDisplay": "none",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "album",
+      "sameFirstCover": true,
+      "width": 390
+    },
+    {
+      "backgroundDisplay": "none",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "album",
+      "sameFirstCover": true,
+      "width": 430
+    },
+    {
+      "backgroundDisplay": "none",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "album",
+      "sameFirstCover": true,
+      "width": 768
+    },
+    {
+      "backgroundDisplay": "block",
+      "opacity": "0.16",
+      "overflow": false,
+      "page": "album",
+      "sameFirstCover": true,
+      "width": 1440
+    }
+  ],
+  "secondVersionUsesOwnCover": true,
+  "noCoverHasNoDecorativeLayer": true
+}

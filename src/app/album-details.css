@@ -46,3 +46,18 @@
 
 .release-detail-intro .detail-metadata>div{grid-template-columns:88px minmax(0,1fr)}.release-detail-intro .detail-metadata dd{min-width:0;overflow-wrap:anywhere}.detail-purchase-links{display:flex;flex-wrap:wrap;gap:12px 24px;margin:18px 0}.detail-purchase-links .text-link{font-size:13px;overflow-wrap:anywhere}
 @media(max-width:700px){.release-detail-intro .detail-metadata>div{grid-template-columns:75px minmax(0,1fr)}}
+
+/* A quiet cover impression behind the record information; foreground stays opaque. */
+.album-atmosphere{position:relative;isolation:isolate}
+.album-atmosphere-background{position:absolute;inset:0 0 0 42%;z-index:0;overflow:hidden;pointer-events:none;user-select:none;opacity:.16;-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 40%,#000 72%,rgba(0,0,0,.85) 88%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 40%,#000 72%,rgba(0,0,0,.85) 88%,transparent 100%)}
+.album-atmosphere-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:65% 38%;filter:grayscale(100%) brightness(1.08) contrast(.93);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 76%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 76%,transparent 100%)}
+.album-atmosphere-background .editor-muted{display:none}
+.release-detail-hero.album-atmosphere>.release-detail-art,.release-detail-hero.album-atmosphere>.release-detail-intro,.album-atmosphere-content{position:relative;z-index:1;min-width:0}
+.album-edition-intro.album-atmosphere{max-width:none;min-height:280px;padding:32px 0;display:flex;align-items:center}
+.album-atmosphere-content{width:100%;max-width:880px}
+.album-atmosphere-content>.text-link{margin-top:20px}
+@media(max-width:768px){
+ .album-atmosphere-background{display:none}
+ .album-edition-intro.album-atmosphere{min-height:0;padding:0}
+}
+@media(forced-colors:active){.album-atmosphere-background{display:none}}
