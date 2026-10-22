@@ -65,7 +65,7 @@ test('COS tickets bind user, album, version, track, type, replacement and revisi
   const first=album.media[0].id;album=uploads.complete(uploads.create({...params(),replaceId:first}).id);assert.equal(album.media.length,6);assert.equal(album.media[0].id,first);
   assert.throws(()=>uploads.create({...params(),kind:'audio',name:'test.flac',target:'missing'}),/已添加的曲目/);
   const audio=uploads.create({...params(),kind:'audio',name:'test.flac',target:track.id});album=uploads.complete(audio.id,{codec:'FLAC',extension:'flac',mimeType:'audio/flac',size:64,bitDepth:16,sampleRate:44100,channels:2,durationSeconds:1});
-  const m=album.media.at(-1)!;assert.equal(m.relatedTrackId,track.id);assert.equal(m.relatedEditionId,edition.id);assert.equal(m.rightsStatus,'private');assert.equal(a.media(m.storageKey!,true).mime_type,'audio/flac');assert.equal(s.media(m.storageKey!,true).mime_type,'audio/flac');
+  const m=album.media.at(-1)!;assert.equal(m.relatedTrackId,track.id);assert.equal(m.relatedEditionId,edition.id);assert.equal(m.rightsStatus,'private');assert.throws(()=>a.media(m.storageKey!,true),e=>e instanceof StoreError&&e.status===403);assert.equal(s.media(m.storageKey!,true).mime_type,'audio/flac');
   album=a.save(album,'submit',album.id,album.revision,'核实资料后提交审核');assert.throws(()=>uploads.create(params()),/正在审核/);s.transition(album.id,'approve',album.revision);assert.equal(store.published().find(x=>x.id===album.id)?.media.length,7);
 });
 test('COS completion failure rolls back registration and ticket consumption',t=>{

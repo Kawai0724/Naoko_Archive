@@ -9,9 +9,24 @@ import {IdentityStore} from '../src/lib/identity-store';
 import {ContributorStore} from '../src/lib/contributor-store';
 import {receiveAudio} from '../src/lib/lossless-audio';
 import {mediaDisposition,mediaResponse} from '../src/lib/media-delivery';
+import {visibleAlbumMedia} from '../src/lib/media-visibility';
+import {publicAlbum,emptyMedia} from '../src/lib/albums';
+import type {ContributorUser} from '../src/lib/identity-store';
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=','base64');
 function setup(t:TestContext){const dir=mkdtempSync(path.join(tmpdir(),'naoko-sharing-')),store=new AlbumStore(dir);t.after(()=>{store.close();rmSync(dir,{recursive:true,force:true});});return {dir,store};}
 async function audio(dir:string){const bytes=readFileSync(path.join(process.cwd(),'tests/fixtures/lossless/test.flac'));return receiveAudio(dir,new ReadableStream({start(c){c.enqueue(bytes);c.close();}}),'test.flac',bytes.length);}
+test('reviewed catalogue exposes covers to guests and members, scan images to members, and audio only to administrators',()=>{
+ const album=emptyAlbum();album.id='published';
+ album.media=['cover','scan','audio'].map((type,i)=>({...emptyMedia(album.id),id:String(i),type:type as 'cover'|'scan'|'audio',storageKey:`fixture-${i}`}));
+ const view=publicAlbum(album),member:ContributorUser={id:'member',username:'member',role:'contributor',accountStatus:'approved'},admin:ContributorUser={...member,id:'admin',role:'admin'};
+ assert.deepEqual(visibleAlbumMedia(view,null).media.map(m=>m.type),['cover']);
+ assert.deepEqual(visibleAlbumMedia(view,member).media.map(m=>m.type),['cover','scan']);
+ assert.deepEqual(visibleAlbumMedia(view,admin).media.map(m=>m.type),['cover','scan','audio']);
+ for(const accountStatus of ['pending','rejected'] as const)assert.deepEqual(visibleAlbumMedia(view,{...admin,accountStatus}).media.map(m=>m.type),['cover']);
+ assert.equal(visibleAlbumMedia(view,null).imagesRequireLogin,true);
+ assert.ok(!JSON.stringify(visibleAlbumMedia(view,member)).includes('/api/archive/media/published/2'));
+ assert.equal(view.media.length,3); // Filtering must not mutate the reviewed snapshot.
+});
 test('media sharing needs no licence flags and only exposes reviewed snapshots, retaining replacement and deletion boundaries',async t=>{
  const {dir,store}=setup(t),edition=emptyEdition(),track=emptyTrack(1);track.title='Song';edition.tracks=[track];let album=store.save({...emptyAlbum(),title:'Shared album',editions:[edition]},'draft');
  album=store.attachImages(album,[{name:'cover.png',bytes:png}],album.id,album.revision,undefined,'cover',edition.id);
@@ -32,9 +47,9 @@ test('audio delivery supports playback ranges, safe downloads and private COS si
  const oldId=process.env.COS_SECRET_ID,oldKey=process.env.COS_SECRET_KEY;process.env.COS_SECRET_ID='test-only-id';process.env.COS_SECRET_KEY='test-only-key';
  try{const redirect=mediaResponse(new Request('http://localhost/media?download=1'),store,'pending/test/unique.flac','曲目.flac'),url=new URL(redirect.headers.get('location')!);assert.equal(redirect.status,302);assert.equal(redirect.headers.get('cache-control'),'no-store');assert.ok(url.searchParams.get('response-content-disposition')?.startsWith('attachment;'));assert.ok(url.searchParams.get('q-signature'));const [start,end]=url.searchParams.get('q-key-time')!.split(';').map(Number);assert.equal(end-start,120);}finally{if(oldId===undefined)delete process.env.COS_SECRET_ID;else process.env.COS_SECRET_ID=oldId;if(oldKey===undefined)delete process.env.COS_SECRET_KEY;else process.env.COS_SECRET_KEY=oldKey;}
 });
-test('contributors may preview their own uploaded audio but cannot access another author draft or forge cross-album references',async t=>{
+test('only administrators may read audio, including author drafts; contributor cover ownership stays intact',async t=>{
  const {dir,store}=setup(t),identity=new IdentityStore(store.db),password='sharing-test-password';identity.bootstrap(password);const admin=identity.login('fly-me-to-1980',password).user;
  const one=identity.register('sharing_one',password,''),two=identity.register('sharing_two',password,'');for(const u of [one,two])identity.reviewRegistration(admin,u.user.id,'approved',1,'');
- const a=new ContributorStore(store,identity.session(one.token)!),b=new ContributorStore(store,identity.session(two.token)!);let album=a.save({...emptyAlbum(),title:'Own audio'},'draft');album=store.attachAudio(album.id,album.revision,await audio(dir),'album');const key=album.media[0].storageKey!;assert.equal(a.media(key,true).mime_type,'audio/flac');assert.throws(()=>b.media(key,true),e=>e instanceof StoreError&&e.status===404);
+ const a=new ContributorStore(store,identity.session(one.token)!),b=new ContributorStore(store,identity.session(two.token)!);let album=a.save({...emptyAlbum(),title:'Own audio'},'draft');album=store.attachAudio(album.id,album.revision,await audio(dir),'album');const key=album.media[0].storageKey!;assert.throws(()=>a.media(key,true),e=>e instanceof StoreError&&e.status===403);assert.throws(()=>b.media(key,true),e=>e instanceof StoreError&&e.status===403);assert.equal(new ContributorStore(store,admin).media(key,true).mime_type,'audio/flac');
  const other=b.save({...emptyAlbum(),title:'Other'},'draft');assert.throws(()=>b.save({...other,media:album.media},'draft',other.id,other.revision),/引用无效/);
 });

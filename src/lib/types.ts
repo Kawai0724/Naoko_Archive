@@ -64,7 +64,7 @@ export interface AlbumRevision { id: number; albumId: string; action: string; co
 export type PublicTrack = Omit<AlbumTrack, 'lyricsText' | 'lyricsRightsStatus' | 'lyricsPublicationConfirmed'> & { lyricsText: string | null; hasPrivateLyrics: boolean };
 export type PublicEdition = Omit<AlbumEdition, 'tracks' | 'editorNotes'> & { tracks: PublicTrack[] };
 export type PublicAlbum = Omit<Album, 'editorNotes' | 'changeNote' | 'deletedAt' | 'media' | 'tracks' | 'editions'> & {
-  mediaRequiresLogin?: boolean;
+  imagesRequireLogin?: boolean;
   editions: PublicEdition[];
   tracks: PublicTrack[]; media: { id: string; type: AlbumMedia['type']; displayName: string | null; relatedEditionId: string | null; relatedTrackId?: string | null; url: string }[];
 };

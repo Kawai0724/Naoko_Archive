@@ -39,6 +39,7 @@ export class ContributorStore{
     const result=this.store.transition(id,'restore',expected,this.user.role==='admin',note);this.identity.audit(this.user,'restore',id);return result;
   }
   media(key:string,audio=false){
+    if(audio)this.identity.requireAdmin(this.user);
     const f=this.store.cloudMediaInfo(key);if(!f||f.mime_type.startsWith('audio/')!==audio)throw new StoreError('文件不存在',404);
     const a=this.get(f.album_id);if(a.deletedAt||!a.media.some(m=>m.storageKey===key))throw new StoreError('文件不存在',404);
     return f;

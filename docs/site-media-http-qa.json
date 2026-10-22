@@ -1,18 +1,19 @@
 {
-  "testedAt": "2026-10-21T16:46:21.000Z",
+  "testedAt": "2026-10-22T00:33:38.900Z",
   "isolatedDatabase": true,
   "checks": [
-    "legacy private media needs no per-file approval flags",
-    "approved image shared with approved non-owner member; anonymous 401",
-    "approved-member FLAC range 206 matches bytes; anonymous/forged 401, pending 403",
-    "download disposition and bytes correct",
-    "invalid range 416",
-    "draft and cross-album media 404",
-    "author draft preview 200; other author 404; anonymous 401",
-    "version page contains player and download without storage keys"
+    "published cover PNG bytes accessible anonymously, forged, pending and approved member",
+    "unpublished and cross-album files 404",
+    "scan image remains approved-member only",
+    "published audio, Range and download denied to contributor including owner; no redirect",
+    "anonymous/forged audio 401; pending audio 403",
+    "administrator FLAC Range 206, byte-exact download, invalid Range 416",
+    "draft audio author/other member 403; administrator 200",
+    "guest/member catalogue and version HTML contain cover but no audio URLs/player",
+    "contributor edit and preview omit audio controls; administrator retains them"
   ],
-  "publishedId": "2db1d5a1-8fed-4c97-a80d-21cce8fd914f",
-  "draftId": "949e57ff-f3e3-4fd6-9539-71d6598a42b1",
-  "editionId": "e74b9102-7aad-4c78-b1d5-cd73ec793fb3",
-  "publicUrl": "/discography/album-2db1d5a1-8fed-4c97-a80d-21cce8fd914f/editions/75655bca-fd34-4eb5-89b1-7dbd95df6dfa"
+  "publishedId": "53753755-3f43-4749-9d75-b53b1bee025a",
+  "draftId": "9d8a3bd0-be52-4195-90d4-c342f23760c8",
+  "editionId": "4463d74b-ac3d-428f-bbff-5518ef90ea73",
+  "publicUrl": "/discography/album-53753755-3f43-4749-9d75-b53b1bee025a/editions/46dcd61a-121f-443a-8e20-04a25ae2a0dd"
 }
