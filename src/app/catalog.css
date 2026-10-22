@@ -77,3 +77,23 @@
  .catalog-discography .catalog-card-category{font-size:14px}
  .catalog-discography .catalog-card-meta i{font-size:14px}
 }
+
+/* Album names share the site's editorial serif; versions sit alongside. */
+.catalog-discography .catalog-card-copy{padding-right:0}
+.catalog-album-heading{line-height:1.2;margin-bottom:12px}
+.catalog-discography .catalog-album-heading h2{display:inline;font-family:var(--editorial),var(--serif);font-size:clamp(30px,2.5vw,36px);font-weight:500;line-height:1.12;letter-spacing:-.015em;margin:0;min-width:0;max-width:100%}
+.catalog-version-entry{display:inline-flex;align-items:center;vertical-align:baseline;margin-left:12px;gap:4px;flex-shrink:0;white-space:nowrap;font-size:12px;font-weight:400;line-height:1.6;padding-bottom:2px;border-bottom:1px solid var(--line);color:var(--forest)}
+.catalog-card:hover .catalog-version-entry{border-color:var(--forest)}
+.catalog-discography .catalog-card-year{font-family:var(--editorial);font-size:25px;font-weight:500;letter-spacing:0}
+.catalog-discography .catalog-card-category{font-size:14px;font-weight:400;color:var(--muted)}
+.catalog-discography .catalog-card-meta i{font-size:14px}
+.catalog-discography .catalog-card-subtitle{font-size:13px;font-weight:400;margin-top:8px}
+@media(max-width:700px){
+ .catalog-album-heading{margin-bottom:10px}
+ .catalog-discography .catalog-album-heading h2{font-size:clamp(25px,6.4vw,30px)}
+ .catalog-version-entry{font-size:11px;gap:3px;margin-left:8px}
+ .catalog-discography .catalog-card-year{font-size:23px}
+ .catalog-discography .catalog-card-category{font-size:13px}
+ .catalog-discography .catalog-card-meta i{font-size:13px}
+ .catalog-discography .catalog-card-subtitle{font-size:12px;padding-right:0}
+}
