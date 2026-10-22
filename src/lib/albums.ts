@@ -1,6 +1,7 @@
 import type { Album, AlbumTrack, AlbumEdition, AlbumMedia, PartialDate, PublicAlbum, Release, RightsStatus, Credit, PublicTrack } from './types';
 export const statusLabels = { draft:'草稿', 'pending-review':'待审核', published:'已通过', rejected:'已拒绝' };
-export const albumTypes = { album:'Album / 专辑',single:'Single / 单曲',ep:'EP',compilation:'Compilation / 合集',live:'Live / 现场',other:'Other / 其他' };
+export const albumTypes = { album:'录音室专辑',live:'现场专辑',single:'单曲',compilation:'精选合辑',other:'其他',ep:'EP' };
+export const editionFormats = {'':'待确定',CD:'CD',SACD:'SACD','Vinyl LP':'Vinyl LP','7-inch Single':'7-inch Single',Cassette:'Cassette',DVD:'DVD','Blu-ray Disc':'Blu-ray Disc（BD）',Digital:'Digital','Hi-Res':'Hi-Res',Other:'Other'};
 export const localContributor='fly-me-to-1980';
 export const uid=()=>crypto.randomUUID();
 export const MAX_ALBUM_IMAGES=6;

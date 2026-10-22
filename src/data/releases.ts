@@ -12,4 +12,4 @@ export const releases: Release[] = [
   makeRelease({ slug:'japan-as-waterscapes', title:'JAPAN as waterscapes', titleZh:'水之风景', year:1987, releaseDate:'1987-06-24', type:'album', cover:'/placeholders/waterscapes.svg', description:'水、季节与风景组成一份可阅读的曲目地图。此处按官方目录列出曲目；两首器乐曲注明为 CD 版收录。中文名称为本站辅助译名。', songs:['水の四季','桜の闇に振り向けば','夏の左岸、冬の右岸','海の中の星座','終夜の螢','水無月の少女たちに（インスト）〔CD 版〕','砂の舟、草の舟','黒髪にアマリリス','十六夜物語','霧の降る夕闇','晩夏に人を愛すると','水辺の風景（インスト）〔CD 版〕'] }),
   makeRelease({ slug:'halfmoon-serenade', title:'ハーフムーン・セレナーデ', titleZh:'半月小夜曲', year:1986, releaseDate:'1986-11-02', type:'single', cover:'/placeholders/halfmoon.svg', description:'一张单曲的两面：以原始发行日期、日文曲名与官方目录为起点。中文名称为本站辅助译名。', songs:['ハーフムーン・セレナーデ','SENTIMENTAL SUGAR RAIN'] }),
 ];
-export const releaseTypeLabel = { album:'专辑', single:'单曲', ep:'EP', compilation:'精选集', live:'现场专辑', other:'其他' };
+export const releaseTypeLabel = { album:'录音室专辑', live:'现场专辑', single:'单曲', compilation:'精选合辑', other:'其他', ep:'EP' };
