@@ -127,3 +127,5 @@
 .edition-order-list p{margin:4px 0 0;overflow-wrap:anywhere}
 .edition-order-actions{display:flex;gap:20px;white-space:nowrap}
 @media(max-width:600px){.edition-order-list>li{grid-template-columns:24px minmax(0,1fr);gap:10px 14px}.edition-order-actions{grid-column:2;gap:24px}.edition-order-list strong{font-size:15px}}
+
+.catalog-order-entry{margin:12px 0}.catalog-order-page>.editor-muted{margin-bottom:24px}.catalog-order-mode{max-width:360px}.catalog-order-list{margin:28px 0}.catalog-order-review-list{margin:14px 0;padding-left:24px}.catalog-order-review-list li{padding:8px 0;overflow-wrap:anywhere}.catalog-order-review-list span{display:block;color:var(--muted);font-size:12px}.catalog-order-page .content-review-messages{margin-top:48px}

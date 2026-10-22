@@ -1,0 +1,78 @@
+{
+  "isolatedDatabase": true,
+  "albumManagementEntry": true,
+  "newAlbumEntryOpensNewTab": true,
+  "separateEditionOrderingRetained": true,
+  "pendingPersistsAfterRefresh": true,
+  "pendingDoesNotChangePublicOrder": true,
+  "reviewShowsUserReasonAndBeforeAfter": true,
+  "approvalChangesPublicOrder": true,
+  "adminRestoreAlsoRequiresReview": true,
+  "emptyReasonDisplaysNone": true,
+  "dateOrderRestored": true,
+  "editorWidths": [
+    {
+      "rows": [
+        "Scarlet",
+        "LOVE",
+        "JAPAN as waterscapes — 河合奈保子作品資料"
+      ],
+      "scrollWidth": 360,
+      "width": 360
+    },
+    {
+      "rows": [
+        "Scarlet",
+        "LOVE",
+        "JAPAN as waterscapes — 河合奈保子作品資料"
+      ],
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "rows": [
+        "Scarlet",
+        "LOVE",
+        "JAPAN as waterscapes — 河合奈保子作品資料"
+      ],
+      "scrollWidth": 430,
+      "width": 430
+    },
+    {
+      "rows": [
+        "Scarlet",
+        "LOVE",
+        "JAPAN as waterscapes — 河合奈保子作品資料"
+      ],
+      "scrollWidth": 768,
+      "width": 768
+    },
+    {
+      "rows": [
+        "Scarlet",
+        "LOVE",
+        "JAPAN as waterscapes — 河合奈保子作品資料"
+      ],
+      "scrollWidth": 1440,
+      "width": 1440
+    }
+  ],
+  "reviewWidths": [
+    {
+      "scrollWidth": 360,
+      "width": 360
+    },
+    {
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "scrollWidth": 430,
+      "width": 430
+    },
+    {
+      "scrollWidth": 768,
+      "width": 768
+    }
+  ]
+}

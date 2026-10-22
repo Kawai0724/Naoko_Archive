@@ -1,0 +1,10 @@
+{
+  "anonymous401": true,
+  "crossOrigin403": true,
+  "memberCannotApprove403": true,
+  "authenticatedSubmission201": true,
+  "memberOnlyOwnRequests": true,
+  "pendingDoesNotPublish": true,
+  "adminReject200": true,
+  "albumRowsAndSnapshotsUnchanged": true
+}

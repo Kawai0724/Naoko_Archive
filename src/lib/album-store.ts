@@ -3,9 +3,10 @@ import { mkdirSync, chmodSync, writeFileSync, readFileSync, unlinkSync, renameSy
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { releases } from '../data/releases';
-import { normalizeAlbum, releaseToAlbum, submissionErrors, changeSummary, publicAlbum, localContributor, emptyMedia, MAX_ALBUM_IMAGES, MAX_IMAGE_BYTES,durationText,compareAlbumReleaseDate } from './albums';
+import { normalizeAlbum, releaseToAlbum, submissionErrors, changeSummary, publicAlbum, localContributor, emptyMedia, MAX_ALBUM_IMAGES, MAX_IMAGE_BYTES,durationText } from './albums';
 import type { Album, AlbumRevision } from './types';
 import type { PreparedAudio } from './lossless-audio';
+import { readCatalogOrder,sortCatalog } from './catalog-order';
 import { migrateAlbumHierarchy } from './edition-hierarchy';
 
 export class StoreError extends Error { constructor(message:string,public status=400){super(message);} }
@@ -39,8 +40,8 @@ export class AlbumStore {
   }
   close(){this.db.close();}
   get(id:string):Album|null{const row=this.db.prepare('SELECT working_json FROM albums WHERE id=?').get(id) as {working_json:string}|undefined;return row?JSON.parse(row.working_json):null;}
-  list():Album[]{return (this.db.prepare('SELECT working_json FROM albums').all() as {working_json:string}[]).map(r=>JSON.parse(r.working_json)).sort(compareAlbumReleaseDate);}
-  published(){return (this.db.prepare('SELECT published_json,working_json FROM albums WHERE published_json IS NOT NULL').all() as Row[]).filter(r=>!JSON.parse(r.working_json).deletedAt).map(r=>publicAlbum(JSON.parse(r.published_json!))).sort(compareAlbumReleaseDate);}
+  list():Album[]{return sortCatalog((this.db.prepare('SELECT working_json FROM albums').all() as {working_json:string}[]).map(r=>JSON.parse(r.working_json) as Album),readCatalogOrder(this.db));}
+  published(){return sortCatalog((this.db.prepare('SELECT published_json,working_json FROM albums WHERE published_json IS NOT NULL').all() as Row[]).filter(r=>!JSON.parse(r.working_json).deletedAt).map(r=>publicAlbum(JSON.parse(r.published_json!))),readCatalogOrder(this.db));}
   publishedRaw(id:string):Album|null{const row=this.db.prepare('SELECT * FROM albums WHERE id=?').get(id) as Row|undefined;return row?.published_json&&!JSON.parse(row.working_json).deletedAt?JSON.parse(row.published_json):null;}
   publishedMedia(albumId:string,mediaId:string){
     const album=this.publishedRaw(albumId),media=album?.media.find(m=>m.id===mediaId),file=media?.storageKey?this.cloudMediaInfo(media.storageKey):null;

@@ -2,10 +2,11 @@ import { albumStore,StoreError } from '@/lib/album-store';
 import { identityStore } from '@/lib/contributor-auth';
 import { ChangeRequestStore } from '@/lib/change-request-store';
 import { ContributorStore } from '@/lib/contributor-store';
+import { CatalogOrderStore } from '@/lib/catalog-order-store';
 import { guardApi,jsonBody,apiError } from '@/lib/local-access';
 export async function GET(req:Request){try{
   const user=await guardApi(req),store=albumStore(),changes=new ChangeRequestStore(store),scope=new ContributorStore(store,user);
-  if(user.role==='admin')return Response.json({registrations:identityStore().registrationQueue(user),adminApplications:identityStore().adminApplications(user),albumRequests:scope.requests.list(user),albums:scope.list().filter(a=>!a.deletedAt&&a.status==='pending-review'),changes:changes.list(user),content:changes.content()},{headers:{'Cache-Control':'no-store'}});
+  if(user.role==='admin')return Response.json({catalogOrderRequests:new CatalogOrderStore(store).list(user),registrations:identityStore().registrationQueue(user),adminApplications:identityStore().adminApplications(user),albumRequests:scope.requests.list(user),albums:scope.list().filter(a=>!a.deletedAt&&a.status==='pending-review'),changes:changes.list(user),content:changes.content()},{headers:{'Cache-Control':'no-store'}});
   return Response.json({albumRequests:scope.requests.list(user),changes:changes.list(user),content:changes.content()},{headers:{'Cache-Control':'no-store'}});
 }catch(e){return apiError(e);}}
 export async function POST(req:Request){try{
