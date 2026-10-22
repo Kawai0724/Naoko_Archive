@@ -8,7 +8,6 @@
 .community-members time{font-size:13px;color:var(--muted);text-align:right}
 .member-role{font-size:14px;color:var(--muted)}
 .member-role-admin{color:var(--ink);font-weight:600}
-.community-page .community-action{display:inline-block;margin-top:24px;padding-bottom:8px;border-bottom:1px solid var(--ink);font-size:18px}
 .community-page .eyebrow{margin:0}
 @media(max-width:768px){
  .community-page{padding-top:40px;padding-bottom:64px}

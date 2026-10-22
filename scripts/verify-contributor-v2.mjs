@@ -27,7 +27,7 @@ async function inviteUser(prefix){
 }
 const alice=await inviteUser('alice'),bob=await inviteUser('bob');results.push('two invited accounts; invite replay rejected');
 await request('/api/contributor/admin',{cookie:alice.cookie,expected:403});await request('/api/contributor/admin',{cookie:alice.cookie,method:'POST',body:{action:'invite'},expected:403});
-await request('/contributor/members',{cookie:alice.cookie,expected:200,raw:true});
+await request('/contributor/members',{cookie:alice.cookie,expected:307,raw:true});
 const input=emptyAlbum(),edition=emptyEdition(),track=emptyTrack(1);input.title='V2 isolated HTTP test';track.title='Test track';edition.tracks=[track];edition.trackIds=[track.id];input.editions=[edition];
 let data=await request('/api/contributor/albums',{cookie:alice.cookie,method:'POST',body:{action:'draft',album:input},expected:201}),album=data.album;
 assert.equal(album.contributor,alice.user.username);

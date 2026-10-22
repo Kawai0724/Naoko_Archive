@@ -1,0 +1,26 @@
+[
+  {
+    "applicationOnAccount": true,
+    "communityLinkIsReadOnly": true,
+    "overflow": false,
+    "width": 360
+  },
+  {
+    "applicationOnAccount": true,
+    "communityLinkIsReadOnly": true,
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "applicationOnAccount": true,
+    "communityLinkIsReadOnly": true,
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "applicationOnAccount": true,
+    "communityLinkIsReadOnly": true,
+    "overflow": false,
+    "width": 1440
+  }
+]

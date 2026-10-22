@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { AccountProfile } from '@/lib/identity-store';
+import type { AccountProfile,AdminApplication as Application } from '@/lib/identity-store';
 import { bioLength,MEMBER_BIO_LIMIT } from '@/lib/member-bio';
+import AdminApplication from './AdminApplication';
 
-export default function AccountSettings({profile:initial}:{profile:AccountProfile}){
+export default function AccountSettings({profile:initial,application}:{profile:AccountProfile;application:Application|null}){
   const router=useRouter(),[profile,setProfile]=useState(initial),[nickname,setNickname]=useState(initial.nickname),[bio,setBio]=useState(initial.bio),[profileError,setProfileError]=useState(''),[message,setMessage]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[repeatPassword,setRepeatPassword]=useState(''),[passwordError,setPasswordError]=useState(''),[closePassword,setClosePassword]=useState(''),[confirmation,setConfirmation]=useState(''),[closeError,setCloseError]=useState(''),[busy,setBusy]=useState(false);
   async function saveProfile(e:React.FormEvent){e.preventDefault();setProfileError('');setMessage('');if(bioLength(bio)>MEMBER_BIO_LIMIT){setProfileError('简介最多 80 字');return;}setBusy(true);try{
     const response=await fetch('/api/contributor/account',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',nickname,bio})}),data=await response.json();
@@ -26,6 +27,7 @@ export default function AccountSettings({profile:initial}:{profile:AccountProfil
       {profileError&&<p role="alert" className="editor-error">{profileError}</p>}{message&&<p role="status" className="editor-message">{message}</p>}
       <button className="editor-button" disabled={busy}>保存资料</button>
     </form></section>
+    {profile.role==='contributor'&&profile.accountStatus==='approved'&&<AdminApplication initial={application}/>}
     <section className="editor-section account-password"><h2>修改密码</h2><p className="editor-muted">修改后，所有设备需要重新登录。</p><form className="access-form" onSubmit={changePassword}>
       <div className="editor-field"><label htmlFor="account-current-password">当前密码</label><input id="account-current-password" type="password" value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} autoComplete="current-password" required maxLength={256} disabled={busy}/></div>
       <div className="editor-field"><label htmlFor="account-new-password">新密码（至少 12 个字符）</label><input id="account-new-password" type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} autoComplete="new-password" required minLength={12} maxLength={256} disabled={busy}/></div>

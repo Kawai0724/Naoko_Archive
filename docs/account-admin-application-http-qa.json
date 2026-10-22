@@ -1,0 +1,15 @@
+{
+  "testedAt": "2026-10-22T01:18:02.828Z",
+  "isolatedDatabase": true,
+  "checks": [
+    "public member directory read-only for guests, contributors and administrators",
+    "legacy contributor member route redirects ordinary contributors to the directory",
+    "only approved contributors see the application on their personal account",
+    "empty/cross-origin/pending-account submissions denied",
+    "pending status survives page reload; duplicate applications denied",
+    "application visible only to its owner and administrator review queue",
+    "self approval denied; rejection reply and resubmission remain on account page",
+    "administrator approval takes effect in existing session; application form disappears",
+    "administrator member and invitation management remains available"
+  ]
+}
