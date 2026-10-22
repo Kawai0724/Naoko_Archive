@@ -21,7 +21,7 @@ export function editionEditorAlbum(source:Album,editionId:string):Album{
 export function mergeEditionEditor(source:Album,editor:Album,editionId:string):Album{
   if(!source.editions.some(e=>e.id===editionId)||editor.editions.length!==1||editor.editions[0].id!==editionId)throw new Error('版本资料不匹配');
   const e:AlbumEdition={...editor.editions[0],tracks:editor.tracks,trackIds:editor.tracks.map(t=>t.id),description:editor.description,sources:editor.sources,editorNotes:editor.editorNotes};
-  return {...source,revision:editor.revision,changeNote:editor.changeNote,editions:source.editions.map(v=>v.id===editionId?e:v),media:[...source.media.filter(m=>m.relatedEditionId!==editionId),...editor.media.map(m=>({...m,relatedEditionId:editionId}))]};
+  return {...source,editionOrder:editor.editionOrder??source.editionOrder??'manual',revision:editor.revision,changeNote:editor.changeNote,editions:source.editions.map(v=>v.id===editionId?e:v),media:[...source.media.filter(m=>m.relatedEditionId!==editionId),...editor.media.map(m=>({...m,relatedEditionId:editionId}))]};
 }
 export function publicEditionAlbum(a:PublicAlbum,editionId:string):PublicAlbum{
   const e=a.editions.find(e=>e.id===editionId);if(!e)throw new Error('版本不存在');

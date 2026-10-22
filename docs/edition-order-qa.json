@@ -1,0 +1,21 @@
+{
+  "isolatedDatabase": true,
+  "newAlbumDefaultsToReleaseDate": true,
+  "newAlbumEntry": true,
+  "newEditionEntry": true,
+  "manualMoveSwitchesMode": true,
+  "draftSurvivesRefresh": true,
+  "pendingLocksOrder": true,
+  "unreviewedPublicOrderUnchanged": true,
+  "reviewShowsReasonAndBeforeAfter": true,
+  "approvedPublicOrderAndCoverUpdated": true,
+  "widths": [
+    360,
+    390,
+    430,
+    768,
+    1440
+  ],
+  "horizontalOverflow": false,
+  "unitTestsPassed": 76
+}

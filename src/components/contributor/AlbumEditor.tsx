@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { statusLabels,emptyTrack,partialDate,uid,durationSeconds,submissionErrors,MAX_ALBUM_IMAGES,MAX_IMAGE_BYTES } from '@/lib/albums';
 import PrivateImage from './PrivateImage';
 import RequestReasonDialog from './RequestReasonDialog';
+import EditionOrderEditor from './EditionOrderEditor';
 import { editionEditorAlbum,mergeEditionEditor } from '@/lib/edition-hierarchy';
 import { MAX_AUDIO_BYTES,LOSSLESS_AUDIO_ACCEPT,audioFileSize } from '@/lib/audio-options';
 import { editionFormats } from '@/lib/albums';
@@ -53,6 +54,7 @@ export default function AlbumEditor({initial:initialSource,editionId,isNewEditio
   const imageCount=album.media.filter(m=>m.type!=='audio').length;
   const currentEdition=album.editions[0];
   return <main id="main-content" className="album-editor"><Link className="editor-link" href={`/contributor/albums/${source.id}`}>← {source.title||'版本目录'}</Link><div className="editor-title-row"><div><h1>{isNewEdition?'添加版本':currentEdition.editionName||'编辑版本'}</h1></div></div><div className="editor-actions"><button className="editor-button" disabled={busy||locked} onClick={()=>save()}>保存草稿</button><button className="editor-button secondary" disabled={busy||locked} onClick={()=>save('draft',true)}>保存并预览</button><button className="editor-button secondary" disabled={busy||locked} onClick={()=>{setError('');setReasonOpen(true);}}>提交审核</button><span className="editor-muted">{busy?(uploadProgress||'正在保存…'):dirty?'未保存':statusLabels[album.status]}</span></div><p role="status" aria-live="polite" className="editor-message">{message}</p>{error&&<p role="alert" className="editor-error">{error}</p>}
+    <EditionOrderEditor album={mergeEditionEditor(source,album,editionId)} disabled={busy||locked} onChange={patch=>{setSource(s=>({...s,...patch}));update({editionOrder:patch.editionOrder});}}/>
     <div className="editor-columns"><div className="editor-primary"><nav className="editor-tabs" aria-label="版本编辑分区">{tabs.map((name,i)=>i===2?null:<button key={name} aria-current={tab===i?'step':undefined} disabled={busy} onClick={()=>setTab(i)}>{name}</button>)}</nav>
     <section aria-label={tabs[tab]} className="editor-section"><fieldset className="editor-form-fields" disabled={busy||locked}>
     {tab===0&&<><h2 className="sr-only">基本信息</h2>{album.editions.map(e=><div key={e.id}><div className="editor-grid">

@@ -55,6 +55,7 @@ export interface SourceReference { id: string; label: string; url: string | null
 export interface Album {
   id: string; slug: string; title: string; originalTitle: string | null; translatedTitle: string | null;
   artist: string; type: ReleaseType | null; firstReleaseDate: PartialDate;
+  editionOrder?: 'release-date' | 'manual';
   description: string | null; aliases: string[]; tracks: AlbumTrack[]; editions: AlbumEdition[];
   media: AlbumMedia[]; sources: SourceReference[]; status: EntryStatus; contributor: string;
   editorNotes: string | null; changeNote: string | null; createdAt: string; updatedAt: string;
