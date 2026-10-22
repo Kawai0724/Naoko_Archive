@@ -13,10 +13,10 @@ function setup(t:TestContext){
   function approved(name:string){const result=identity.register(name,password,'');identity.reviewRegistration(admin,result.user.id,'approved',1,'');return {...result,user:identity.session(result.token)!};}
   t.after(()=>{store.close();rmSync(directory,{recursive:true,force:true});});return {directory,store,identity,admin,approved};
 }
-test('member directory exposes only approved active names, roles and join dates, with no account internals',t=>{
-  const {identity,admin,approved}=setup(t);approved('visible_member');identity.register('pending_private',password,'secret application');const blocked=approved('disabled_member');identity.disable(admin,blocked.user.id,true);const closed=approved('closed_member');identity.closeOwnAccount(closed.user,password,'closed_member');
-  const members=identity.publicMembers();assert.deepEqual(members.map(m=>m.username),['fly-me-to-1980','visible_member']);
-  for(const row of members)assert.deepEqual(Object.keys(row).sort(),['created_at','role','username']);assert.equal(members[0].role,'admin');assert.equal(Object.getPrototypeOf(members[0]),Object.prototype);
+test('member directory exposes only approved active names, short biographies, roles and join dates, with no account internals',t=>{
+  const {identity,admin,approved}=setup(t);const visible=approved('visible_member');identity.updateProfile(visible.user,'','公开简介');const pending=identity.register('pending_private',password,'secret application');identity.updateProfile(pending.user,'','待审简介不可见');const blocked=approved('disabled_member');identity.disable(admin,blocked.user.id,true);const closed=approved('closed_member');identity.closeOwnAccount(closed.user,password,'closed_member');
+  const members=identity.publicMembers();assert.ok(!JSON.stringify(members).includes('待审简介不可见'));assert.equal(members.find(m=>m.username==='visible_member')?.bio,'公开简介');assert.deepEqual(members.map(m=>m.username),['fly-me-to-1980','visible_member']);
+  for(const row of members)assert.deepEqual(Object.keys(row).sort(),['bio','created_at','role','username']);assert.equal(members[0].role,'admin');assert.equal(Object.getPrototypeOf(members[0]),Object.prototype);
 });
 test('admin applications require active approved membership and cannot be forged, duplicated or self-approved',t=>{
   const {identity,admin,approved}=setup(t),a=approved('applicant_one'),pending=identity.register('pending_fan',password,'');

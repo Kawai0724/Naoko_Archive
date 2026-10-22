@@ -11,7 +11,7 @@ async function request(route,{cookie='',method='GET',body,expected=200,origin=ba
 async function login(username,pw=password,expected=200){const r=await request('/api/contributor/auth/login',{method:'POST',body:{username,password:pw,rememberMe:true},expected});if(expected!==200){assert.equal(r.headers.get('set-cookie'),null);return '';}return r.headers.get('set-cookie').split(';')[0];}
 async function profile(cookie){const r=await request('/api/contributor/account',{cookie});assert.equal(r.headers.get('cache-control'),'no-store');return (await r.json()).profile;}
 async function patch(cookie,body,expected=200,origin=base){return request('/api/contributor/account',{cookie,method:'PATCH',body,expected,origin});}
-const profileBody={action:'profile',nickname:'唱片收藏者',bio:'喜欢收藏唱片。\n这份简介只在个人账号页显示。'};
+const profileBody={action:'profile',nickname:'唱片收藏者',bio:Array.from('喜欢河合奈保子的音乐，也收藏不同时期的唱片与歌词纸。希望和大家一起整理发行资料，记录每个版本的细节，让熟悉的旋律与珍贵的记忆被温柔保存。闲暇时听歌、读书，也期待认识更多同好。').slice(0,80).join('')};
 if(phase==='before-restart'){
  const owner=await login('media_owner'),second=await login('media_owner'),other=await login('media_other'),admin=await login('fly-me-to-1980');
  await request('/api/contributor/account',{expected:401});await request('/api/contributor/account',{cookie:'naoko_contributor_v2=forged-token',expected:401});
@@ -20,10 +20,10 @@ if(phase==='before-restart'){
  assert.equal((await profile(owner)).bio,profileBody.bio);assert.deepEqual(await profile(other),otherBefore);
  const ownQuery=await request('/api/contributor/account?userId=other',{cookie:owner});assert.equal((await ownQuery.json()).profile.username,'media_owner');
  for(const body of [{...profileBody,id:'other-user'},{...profileBody,userId:'other-user'}])await patch(owner,body,403);
- for(const body of [{...profileBody,role:'admin'},{...profileBody,username:'admin'},{...profileBody,nickname:'x'.repeat(31)},{...profileBody,bio:'x'.repeat(501)},{...profileBody,nickname:17},{...profileBody,bio:{}},{...profileBody,nickname:'name\nadmin'}])await patch(owner,body,400);
+ for(const body of [{...profileBody,role:'admin'},{...profileBody,username:'admin'},{...profileBody,nickname:'x'.repeat(31)},{...profileBody,bio:'x'.repeat(81)},{...profileBody,nickname:17},{...profileBody,bio:{}},{...profileBody,nickname:'name\nadmin'}])await patch(owner,body,400);
  await patch(admin,{...profileBody,id:'other-user'},403);await patch(owner,profileBody,403,'https://foreign.invalid');assert.equal((await profile(owner)).role,'contributor');
  const html=await(await request('/contributor/account',{cookie:owner})).text();assert.ok(html.includes(profileBody.nickname)&&html.includes('简介')&&html.includes('修改密码'));assert.ok(!html.includes('password_hash')&&!html.includes(password));
- const members=await(await request('/members',{cookie:owner})).text();assert.ok(!members.includes(profileBody.bio));
+ const members=await(await request('/members',{cookie:owner})).text();assert.ok(members.includes(profileBody.bio));
  const header=await(await request('/archive')).text();assert.ok(header.includes('aria-label="个人账号"')&&header.includes('href="/contributor/account"'));
  const guestAccount=await fetch(base+'/contributor/account',{redirect:'manual'});const guestHtml=await guestAccount.text();assert.ok(guestAccount.status===200&&guestHtml.includes('NEXT_REDIRECT;replace;/contributor/login?next=account;307;')||guestAccount.status===307&&guestAccount.headers.get('location')==='/contributor/login?next=account');
  const action={action:'password',currentPassword:password,newPassword:nextPassword,confirmation:nextPassword};
@@ -37,7 +37,7 @@ if(phase==='before-restart'){
  writeFileSync(savedPath,JSON.stringify({fresh,other,admin,pendingCookie}),{mode:0o600});console.log('Account HTTP checks passed. Restart the isolated server, then run after-restart.');
 }else if(phase==='after-restart'){
  const sessions=JSON.parse(readFileSync(savedPath,'utf8'));assert.equal((await profile(sessions.fresh)).nickname,profileBody.nickname);assert.equal((await profile(sessions.fresh)).bio,profileBody.bio);await login('media_owner',password,401);const current=await login('media_owner',nextPassword);await profile(current);
- const report={testedAt:new Date().toISOString(),isolatedDatabase:true,checks:['personal account header and guest sign-in route','profile GET/PATCH require a real session and correct origin','nickname/biography save privately, with immutable login username and role','foreign user ID and role/username modification rejected, including administrator requests','invalid types and length/control-character limits enforced','wrong current password, mismatched confirmation and weak new password rejected','password change clears Cookie and all own sessions; other user unaffected','old password fails, new password works; profile and new hash survive actual application restart','pending member can edit own profile but cannot access albums','public member page does not expose private biography']};
+ const report={testedAt:new Date().toISOString(),isolatedDatabase:true,checks:['personal account header and guest sign-in route','profile GET/PATCH require a real session and correct origin','nickname and 80-character biography persist, with immutable login username and role','foreign user ID and role/username modification rejected, including administrator requests','invalid types and length/control-character limits enforced','wrong current password, mismatched confirmation and weak new password rejected','password change clears Cookie and all own sessions; other user unaffected','old password fails, new password works; profile and new hash survive actual application restart','pending member can edit own profile but cannot access albums','approved member biography appears to the right of the name in the public member page']};
  writeFileSync(new URL('../docs/account-profile-http-qa.json',import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
  for(const cookie of [current,...Object.values(sessions)])await request('/api/contributor/auth/logout',{cookie,method:'POST'});
 }else throw new Error('Use before-restart or after-restart');

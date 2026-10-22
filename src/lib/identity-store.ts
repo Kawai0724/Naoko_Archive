@@ -1,6 +1,7 @@
 import { createHash,randomBytes,randomUUID,scryptSync,timingSafeEqual } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { StoreError } from './album-store';
+import { bioLength,MEMBER_BIO_LIMIT,memberBio } from './member-bio';
 export type AccountStatus='pending'|'approved'|'rejected';
 export type ContributorUser={id:string;username:string;role:'admin'|'contributor';accountStatus:AccountStatus};
 export type AccountProfile={username:string;nickname:string;bio:string;role:'admin'|'contributor';accountStatus:AccountStatus};
@@ -20,7 +21,7 @@ function matchesPassword(password:string,hash:string){
 }
 const publicUser=(u:ContributorUser):ContributorUser=>({id:u.id,username:u.username,role:u.role,accountStatus:u.accountStatus});
 export type RegistrationApplication={user_id:string;username:string;reason:string;status:AccountStatus;admin_note:string;created_at:number;reviewed_at:number|null;revision:number};
-export type PublicMember={username:string;role:'admin'|'contributor';created_at:number};
+export type PublicMember={username:string;bio:string;role:'admin'|'contributor';created_at:number};
 export type AdminApplication={user_id:string;username:string;reason:string;status:'pending'|'approved'|'rejected';admin_note:string;created_at:number;reviewed_at:number|null;revision:number};
 export class IdentityStore{
   constructor(readonly db:DatabaseSync){
@@ -84,7 +85,7 @@ export class IdentityStore{
     if(!row)throw new StoreError('请重新登录',401);return {...row};
   }
   updateProfile(user:ContributorUser,nickname:string,bio:string){
-    if(typeof nickname!=='string'||typeof bio!=='string'||nickname.trim().length>30||bio.trim().length>500||/[\x00-\x1f\x7f]/.test(nickname)||bio.includes('\0'))throw new StoreError('昵称最多 30 个字符，简介最多 500 个字符');
+    if(typeof nickname!=='string'||typeof bio!=='string'||nickname.trim().length>30||bioLength(bio)>MEMBER_BIO_LIMIT||/[\x00-\x1f\x7f]/.test(nickname)||bio.includes('\0'))throw new StoreError('昵称最多 30 个字符，简介最多 80 字');
     this.db.exec('BEGIN IMMEDIATE');try{
       this.profile(user);this.db.prepare('UPDATE contributor_users SET nickname=?,bio=? WHERE id=?').run(nickname.trim(),bio.trim(),user.id);
       this.audit(user,'update-own-profile',user.id);const profile=this.profile(user);this.db.exec('COMMIT');return profile;
@@ -140,7 +141,7 @@ export class IdentityStore{
       this.audit(user,disabled?'disable-user':'enable-user',id);this.db.exec('COMMIT');
     }catch(e){this.db.exec('ROLLBACK');throw e;}
   }
-  publicMembers():PublicMember[]{return this.db.prepare("SELECT username,role,created_at FROM contributor_users WHERE disabled=0 AND approval_status='approved' AND closed_at IS NULL ORDER BY CASE role WHEN 'admin' THEN 0 ELSE 1 END,created_at,username").all().map(row=>({...row})) as PublicMember[];}
+  publicMembers():PublicMember[]{return this.db.prepare("SELECT username,bio,role,created_at FROM contributor_users WHERE disabled=0 AND approval_status='approved' AND closed_at IS NULL ORDER BY CASE role WHEN 'admin' THEN 0 ELSE 1 END,created_at,username").all().map(row=>({...row,bio:memberBio(row.bio as string)})) as PublicMember[];}
   private requireActive(user:ContributorUser){
     const row=this.db.prepare("SELECT role FROM contributor_users WHERE id=? AND disabled=0 AND approval_status='approved' AND closed_at IS NULL").get(user.id) as {role:string}|undefined;
     if(!row||row.role!==user.role)throw new StoreError('账号无权执行此操作，请重新登录',403);

@@ -1,0 +1,32 @@
+[
+  {
+    "biosOnRight": true,
+    "longestBio": 80,
+    "overflow": false,
+    "width": 360
+  },
+  {
+    "biosOnRight": true,
+    "longestBio": 80,
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "biosOnRight": true,
+    "longestBio": 80,
+    "overflow": false,
+    "width": 430
+  },
+  {
+    "biosOnRight": true,
+    "longestBio": 80,
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "biosOnRight": true,
+    "longestBio": 80,
+    "overflow": false,
+    "width": 1440
+  }
+]

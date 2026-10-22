@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AccountProfile } from '@/lib/identity-store';
+import { bioLength,MEMBER_BIO_LIMIT } from '@/lib/member-bio';
 
 export default function AccountSettings({profile:initial}:{profile:AccountProfile}){
   const router=useRouter(),[profile,setProfile]=useState(initial),[nickname,setNickname]=useState(initial.nickname),[bio,setBio]=useState(initial.bio),[profileError,setProfileError]=useState(''),[message,setMessage]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[repeatPassword,setRepeatPassword]=useState(''),[passwordError,setPasswordError]=useState(''),[closePassword,setClosePassword]=useState(''),[confirmation,setConfirmation]=useState(''),[closeError,setCloseError]=useState(''),[busy,setBusy]=useState(false);
-  async function saveProfile(e:React.FormEvent){e.preventDefault();setBusy(true);setProfileError('');setMessage('');try{
+  async function saveProfile(e:React.FormEvent){e.preventDefault();setProfileError('');setMessage('');if(bioLength(bio)>MEMBER_BIO_LIMIT){setProfileError('简介最多 80 字');return;}setBusy(true);try{
     const response=await fetch('/api/contributor/account',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',nickname,bio})}),data=await response.json();
     if(!response.ok)throw new Error(data.error);setProfile(data.profile);setNickname(data.profile.nickname);setBio(data.profile.bio);setMessage('个人资料已保存');router.refresh();
   }catch(e){setProfileError((e as Error).message);}finally{setBusy(false);}}
@@ -21,7 +22,7 @@ export default function AccountSettings({profile:initial}:{profile:AccountProfil
     <div className="account-identity"><p className="account-summary"><strong>{profile.nickname||profile.username}</strong><span>{profile.role==='admin'?'管理员':'贡献者'}</span></p><p className="account-handle">登录账号 · {profile.username}</p></div>
     <section className="editor-section account-profile"><h2>个人资料</h2><form className="access-form" onSubmit={saveProfile}>
       <div className="editor-field"><label htmlFor="account-nickname">昵称</label><input id="account-nickname" value={nickname} onChange={e=>setNickname(e.target.value)} placeholder={profile.username} autoComplete="nickname" maxLength={30} disabled={busy}/></div>
-      <div className="editor-field"><label htmlFor="account-bio">简介</label><textarea id="account-bio" value={bio} onChange={e=>setBio(e.target.value)} maxLength={500} rows={4} disabled={busy}/></div>
+      <div className="editor-field"><label htmlFor="account-bio">简介（最多 80 字）</label><textarea id="account-bio" value={bio} onChange={e=>setBio(e.target.value)} maxLength={MEMBER_BIO_LIMIT*2} rows={2} aria-invalid={bioLength(bio)>MEMBER_BIO_LIMIT||undefined} disabled={busy}/></div>
       {profileError&&<p role="alert" className="editor-error">{profileError}</p>}{message&&<p role="status" className="editor-message">{message}</p>}
       <button className="editor-button" disabled={busy}>保存资料</button>
     </form></section>

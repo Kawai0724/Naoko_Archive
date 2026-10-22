@@ -22,17 +22,17 @@ test('profile fields migrate additively without changing existing account creden
  assert.equal((store.db.prepare('SELECT password_hash FROM contributor_users').get() as {password_hash:string}).password_hash,hash);assert.deepEqual(store.db.prepare('SELECT * FROM albums ORDER BY id').all(),before);
  new IdentityStore(store.db);assert.equal(identity.profile(user).nickname,'');
 });
-test('private nickname and biography persist, keep login identity and sessions unchanged, and are absent from public directory data',t=>{
- const {directory,store,identity,owner,token}=setup(t),profile=identity.updateProfile(owner,'  唱片收藏者  ','喜欢收藏唱片。\n只在个人资料页显示。');
+test('nickname and short biography persist without changing identity or sessions; approved biography appears in directory',t=>{
+ const {directory,store,identity,owner,token}=setup(t),profile=identity.updateProfile(owner,'  唱片收藏者  ','喜欢收藏唱片，记录音乐与回忆。');
  assert.equal(profile.nickname,'唱片收藏者');assert.equal(profile.username,'profile_owner');assert.equal(identity.session(token)?.username,'profile_owner');assert.equal(identity.login('profile_owner',password).user.id,owner.id);
- assert.deepEqual(Object.keys(profile).sort(),['accountStatus','bio','nickname','role','username']);assert.ok(!JSON.stringify(identity.publicMembers()).includes(profile.bio));
+ assert.deepEqual(Object.keys(profile).sort(),['accountStatus','bio','nickname','role','username']);assert.equal(identity.publicMembers().find(m=>m.username===owner.username)?.bio,profile.bio);assert.ok(!JSON.stringify(identity.publicMembers()).includes(profile.nickname));
  const reopened=new AlbumStore(directory);try{assert.deepEqual(new IdentityStore(reopened.db).profile(owner),profile);}finally{reopened.close();}
  identity.updateProfile(owner,'','');assert.equal(identity.profile(owner).nickname,'');assert.equal((store.db.prepare('SELECT username FROM contributor_users WHERE id=?').get(owner.id) as {username:string}).username,'profile_owner');
 });
 test('profile validation rejects oversize, non-string and control-character input without changing stored data',t=>{
  const {identity,owner}=setup(t),before=identity.profile(owner);
- for(const [nickname,bio] of [['x'.repeat(31),''],['','x'.repeat(501)],['name\nadmin',''],['','text\0'],[null,''],['',{}]])assert.throws(()=>identity.updateProfile(owner,nickname as string,bio as string),e=>e instanceof StoreError&&e.status===400);
- assert.deepEqual(identity.profile(owner),before);assert.equal(identity.updateProfile(owner,'名'.repeat(30),'字'.repeat(500)).bio.length,500);
+ for(const [nickname,bio] of [['x'.repeat(31),''],['','x'.repeat(81)],['name\nadmin',''],['','text\0'],[null,''],['',{}]])assert.throws(()=>identity.updateProfile(owner,nickname as string,bio as string),e=>e instanceof StoreError&&e.status===400);
+ assert.deepEqual(identity.profile(owner),before);assert.equal(identity.updateProfile(owner,'名'.repeat(30),'字'.repeat(80)).bio.length,80);
 });
 test('changing password revokes all own short and remembered sessions, preserves other accounts and survives database reopen',t=>{
  const {directory,store,identity,owner,token,admin}=setup(t),long=identity.login(owner.username,password,true),other=identity.login(admin.username,password,true);
@@ -54,4 +54,13 @@ test('failed password attempts are rate limited and cannot clear the rate limit 
 test('failed password audit write rolls back credentials and session revocation atomically',t=>{
  const {store,identity,owner,token}=setup(t);store.db.exec("CREATE TRIGGER fail_password_audit BEFORE INSERT ON contributor_audit WHEN NEW.action='change-own-password' BEGIN SELECT RAISE(ABORT,'test rollback'); END");
  assert.throws(()=>identity.changePassword(owner,password,nextPassword));assert.ok(identity.session(token));assert.equal(identity.login(owner.username,password).user.id,owner.id);assert.throws(()=>identity.login(owner.username,nextPassword));
+});
+
+test('biography counts Unicode characters and bounds legacy directory text without rewriting the account',t=>{
+ const {identity,store,owner}=setup(t),emoji='🎵'.repeat(80);
+ assert.equal(identity.updateProfile(owner,'',emoji).bio,emoji);
+ assert.throws(()=>identity.updateProfile(owner,'',emoji+'字'),e=>e instanceof StoreError&&e.status===400);
+ const legacy='字'.repeat(85);store.db.prepare('UPDATE contributor_users SET bio=? WHERE id=?').run(legacy,owner.id);
+ assert.equal(identity.publicMembers().find(m=>m.username===owner.username)?.bio,'字'.repeat(80));
+ assert.equal(identity.profile(owner).bio,legacy);
 });
