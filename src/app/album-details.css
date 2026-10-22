@@ -27,7 +27,7 @@
 @media(max-width:768px){
   .edition-index-summary{font-size:13px}
   .edition-meta-list dd{font-size:14px}
-  .public-edition-copy h2{font-size:32px}
+  .public-edition-heading h2{font-size:32px;margin:0}
   .public-track summary strong{font-size:14px}
   .public-track summary>span{font-size:11px}
 }
@@ -63,17 +63,18 @@
 @media(forced-colors:active){.album-atmosphere-background{display:none}}
 
 /* Edition index: one quiet action and a ruled metadata table per version. */
-.public-edition-copy h2{font-size:clamp(30px,3.2vw,40px);margin:12px 0 24px}
-.public-edition-row .edition-meta-list{display:block;margin:0 0 20px}
+.public-edition-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px 24px;margin:12px 0 24px}
+.public-edition-heading h2{font-size:clamp(30px,3.2vw,40px);margin:0}
+.public-edition-heading>.text-link{flex-shrink:0;margin:0;font-size:14px;white-space:nowrap}
+.public-edition-row .edition-meta-list{display:block;margin:0}
 .public-edition-row .edition-meta-list>div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:24px;align-items:baseline;border-top:1px solid var(--line);padding:12px 0}
 .public-edition-row .edition-meta-list>div:last-child{border-bottom:1px solid var(--line)}
 .public-edition-row .edition-meta-list dt{font-size:12px;line-height:1.7}
 .public-edition-row .edition-meta-list dd{margin:0;font-size:15px;line-height:1.7}
-.public-edition-copy>.text-link{margin-top:0;font-size:14px}
 @media(max-width:768px){
  .public-edition-row{grid-template-columns:minmax(0,1fr);gap:24px}
  .public-edition-cover{max-width:180px}
- .public-edition-copy h2{font-size:32px}
+ .public-edition-heading h2{font-size:32px;margin:0}
  .public-edition-row .edition-meta-list>div{grid-template-columns:80px minmax(0,1fr);gap:16px}
  .public-edition-row .edition-meta-list dd{font-size:14px}
 }
