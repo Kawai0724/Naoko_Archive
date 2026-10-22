@@ -29,3 +29,5 @@
 申请入口验收：`docs/account-admin-application-http-qa.json` 记录隔离 HTTP 流程；`docs/account-admin-application-layout-qa.json` 记录 360/390/768/1440px 无溢出。`docs/screenshots/account-admin-application-{desktop,mobile}.png` 为个人账号内的申请区域（测试账号）。浏览器实际提交后显示待审，刷新后仍保留；生产不提交真实申请。
 
 账号功能统一折叠：个人资料、修改密码、自行注销及管理员申请均为默认收起的原生 details/summary，支持鼠标、触屏和键盘独立展开收起。管理员申请必须填写原因，提交后等待管理员审批；资料保存、密码更新和本人注销直接生效，不建立审核申请。密码校验、会话撤销及最后管理员保护保留。截图为 `docs/screenshots/account-disclosures-{desktop,mobile}.png`。
+
+个人账号顶部只保留“← 返回档案馆”，去掉该页的共建导航和重复账号/退出按钮。其他共建页面继续显示原有导航与账号控件；客户端来回切换时随路径正确恢复。服务端身份与权限校验保持不变。
