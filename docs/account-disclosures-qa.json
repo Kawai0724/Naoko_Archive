@@ -1,0 +1,118 @@
+{
+  "widths": [
+    {
+      "overflow": false,
+      "sections": [
+        {
+          "name": "个人资料",
+          "open": false
+        },
+        {
+          "name": "申请成为管理员",
+          "open": false
+        },
+        {
+          "name": "修改密码",
+          "open": false
+        },
+        {
+          "name": "注销账号",
+          "open": false
+        }
+      ],
+      "width": 360
+    },
+    {
+      "overflow": false,
+      "sections": [
+        {
+          "name": "个人资料",
+          "open": false
+        },
+        {
+          "name": "申请成为管理员",
+          "open": false
+        },
+        {
+          "name": "修改密码",
+          "open": false
+        },
+        {
+          "name": "注销账号",
+          "open": false
+        }
+      ],
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "sections": [
+        {
+          "name": "个人资料",
+          "open": false
+        },
+        {
+          "name": "申请成为管理员",
+          "open": false
+        },
+        {
+          "name": "修改密码",
+          "open": false
+        },
+        {
+          "name": "注销账号",
+          "open": false
+        }
+      ],
+      "width": 768
+    },
+    {
+      "overflow": false,
+      "sections": [
+        {
+          "name": "个人资料",
+          "open": false
+        },
+        {
+          "name": "申请成为管理员",
+          "open": false
+        },
+        {
+          "name": "修改密码",
+          "open": false
+        },
+        {
+          "name": "注销账号",
+          "open": false
+        }
+      ],
+      "width": 1440
+    }
+  ],
+  "toggles": [
+    {
+      "name": "个人资料",
+      "opened": true,
+      "closed": true
+    },
+    {
+      "name": "申请成为管理员",
+      "opened": true,
+      "closed": true
+    },
+    {
+      "name": "修改密码",
+      "opened": true,
+      "closed": true
+    },
+    {
+      "name": "注销账号",
+      "opened": true,
+      "closed": true
+    }
+  ],
+  "keyboardOpensProfile": true,
+  "profileSavesDirectly": true,
+  "applicationRequiresReasonAndReview": true,
+  "pendingSurvivesReload": true
+}

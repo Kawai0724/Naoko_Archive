@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-22T01:18:02.828Z",
+  "testedAt": "2026-10-22T01:26:19.490Z",
   "isolatedDatabase": true,
   "checks": [
     "public member directory read-only for guests, contributors and administrators",

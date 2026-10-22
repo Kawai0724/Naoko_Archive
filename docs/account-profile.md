@@ -27,3 +27,5 @@
 管理员申请移动至个人账号：已获批的普通贡献者在个人资料下方查看、提交或重新提交管理员申请；待审核时显示状态，拒绝时显示管理员回复。管理员与待审注册账号不展示申请表。沿用现有真实会话、同源保护、修订号及后台审核；不会因移动入口自动提升权限或重写审批记录。社区成员为只读目录，移除工作台/申请入口；成员管理仍由管理员后台进入。验收脚本为 `scripts/verify-account-admin-application.mjs`。
 
 申请入口验收：`docs/account-admin-application-http-qa.json` 记录隔离 HTTP 流程；`docs/account-admin-application-layout-qa.json` 记录 360/390/768/1440px 无溢出。`docs/screenshots/account-admin-application-{desktop,mobile}.png` 为个人账号内的申请区域（测试账号）。浏览器实际提交后显示待审，刷新后仍保留；生产不提交真实申请。
+
+账号功能统一折叠：个人资料、修改密码、自行注销及管理员申请均为默认收起的原生 details/summary，支持鼠标、触屏和键盘独立展开收起。管理员申请必须填写原因，提交后等待管理员审批；资料保存、密码更新和本人注销直接生效，不建立审核申请。密码校验、会话撤销及最后管理员保护保留。截图为 `docs/screenshots/account-disclosures-{desktop,mobile}.png`。
